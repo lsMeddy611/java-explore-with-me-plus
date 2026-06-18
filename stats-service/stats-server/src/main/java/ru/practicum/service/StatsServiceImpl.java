@@ -3,10 +3,12 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import ru.practicum.EndpointHitDto;
 import ru.practicum.EndpointStatsResponseDto;
 import ru.practicum.exceptions.ValidationException;
 import ru.practicum.mapper.EndpointHitMapper;
 import ru.practicum.model.EndpointHit;
+import ru.practicum.repository.HitRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
