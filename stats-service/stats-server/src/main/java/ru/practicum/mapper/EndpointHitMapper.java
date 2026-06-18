@@ -1,6 +1,5 @@
 package ru.practicum.mapper;
 
-
 import ru.practicum.EndpointHitDto;
 import ru.practicum.model.EndpointHit;
 
@@ -35,7 +34,6 @@ public class EndpointHitMapper {
         }
 
         EndpointHitDto dto = new EndpointHitDto();
-        dto.setId(hit.getId());
         dto.setApp(hit.getApp());
         dto.setUri(hit.getUri());
         dto.setIp(hit.getIp());

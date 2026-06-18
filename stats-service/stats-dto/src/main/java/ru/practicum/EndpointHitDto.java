@@ -11,18 +11,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EndpointHitDto {
 
-    private Long id;
-
-    @NotBlank
+    @NotBlank(message = "Поле app не может быть пустым")
     private String app;
 
-    @NotBlank
+    @NotBlank(message = "Поле uri не может быть пустым")
     private String uri;
 
-    @NotBlank
+    @NotBlank(message = "Поле ip не может быть пустым")
     private String ip;
 
-    @NotBlank
+    @NotBlank(message = "Поле timestamp не может быть пустым")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String timestamp;
 }
