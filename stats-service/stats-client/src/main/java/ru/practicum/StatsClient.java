@@ -2,19 +2,26 @@ package ru.practicum;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import ru.practicum.exception.ValidationDataException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Validated
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StatsClient {
     private final RestClient restClient;
+    private final String dateFormat = "yyyy-MM-dd HH:mm:ss";
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
 
     public EndpointHit saveHit(@Valid EndpointHit hit) throws RestClientException {
         var response = restClient.post()
@@ -32,6 +39,7 @@ public class StatsClient {
 
     public List<ViewStats> getHits(String start, String end,
                                    List<String> uris, Boolean unique) throws RestClientException {
+        validateDates(start, end);
         var response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
@@ -48,5 +56,20 @@ public class StatsClient {
         }
 
         return response.getBody();
+    }
+
+    private void validateDates(String firstString, String secondString) {
+        LocalDateTime firstDateTime = LocalDateTime.parse(firstString, formatter);
+        LocalDateTime secondDateTime = LocalDateTime.parse(secondString, formatter);
+
+        if (firstDateTime.isAfter(LocalDateTime.now())) {
+            log.warn("Дата начала не должна быть позже текущего момента start= {}, now= {}",
+                    firstString, LocalDateTime.now());
+            throw new ValidationDataException("Дата начала не должна быть позже текущего момента");
+        }
+        if (firstDateTime.isAfter(secondDateTime)) {
+            log.warn("Дата начала не должна быть позже конца start= {}, end= {}", firstString, secondString);
+            throw new ValidationDataException("Дата начала не должна быть позже конца");
+        }
     }
 }
