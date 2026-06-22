@@ -28,9 +28,9 @@ public class AdminUserController {
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsers(@RequestParam(value = "from", defaultValue = "0") int from,
                                                   @RequestParam(value = "size", defaultValue = "10") int size,
-                                                  ) {
+                                                  @RequestParam(value = "ids", required = false) List<Long> ids) {
         log.info("GET /admin/users");
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUsers());
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUsers(ids, from, size));
     }
 
     @DeleteMapping("/{userId}")
