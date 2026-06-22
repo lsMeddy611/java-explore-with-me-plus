@@ -2,13 +2,15 @@ package ru.practicum.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.param_objects.AdminUserFilter;
 import ru.practicum.exception.UserNotFoundException;
 import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.model.User;
-import ru.practicum.repository.UserRepository;
+import ru.practicum.repository.user.UserRepository;
 
 import java.util.List;
 
@@ -30,13 +32,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        log.info("Получение информации о всех пользователях");
-        List<User> users = userRepository.findAll();
-        return users
-                .stream()
-                .map(userMapper::toDto)
-                .toList();
+    public List<UserDto> getUsers(AdminUserFilter filter) {
+        log.info("Получение пользователей с параметрами: {}", filter);
+        if (filter.ids().isEmpty()) {
+            log.debug("Получение информации о всех пользователях");
+            List<User> users = userRepository.findAll();
+            return users
+                    .stream()
+                    .map(userMapper::toDto)
+                    .toList();
+        }
+
+        return null;
     }
 
     @Override

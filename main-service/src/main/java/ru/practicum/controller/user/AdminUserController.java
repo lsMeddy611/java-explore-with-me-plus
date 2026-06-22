@@ -1,4 +1,4 @@
-package ru.practicum.controller;
+package ru.practicum.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.param_objects.AdminUserFilter;
 import ru.practicum.service.user.UserService;
 
 import java.util.List;
@@ -26,11 +27,10 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsers(@RequestParam(value = "from", defaultValue = "0") int from,
-                                                  @RequestParam(value = "size", defaultValue = "10") int size,
-                                                  @RequestParam(value = "ids", required = false) List<Long> ids) {
+    public ResponseEntity<List<UserDto>> getUsers(@Valid @ModelAttribute AdminUserFilter filter) {
         log.info("GET /admin/users");
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUsers(ids, from, size));
+        System.out.println(filter);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUsers(filter));
     }
 
     @DeleteMapping("/{userId}")
