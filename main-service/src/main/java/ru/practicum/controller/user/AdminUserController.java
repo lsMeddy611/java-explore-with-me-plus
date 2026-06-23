@@ -30,7 +30,7 @@ public class AdminUserController {
     public ResponseEntity<List<UserDto>> getUsers(@Valid @ModelAttribute AdminUserFilter filter) {
         log.info("GET /admin/users");
         System.out.println(filter);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUsers(filter));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(filter));
     }
 
     @DeleteMapping("/{userId}")
