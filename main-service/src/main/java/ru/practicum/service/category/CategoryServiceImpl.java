@@ -33,8 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategory(Long catId) {
-        Category category = categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException("Категории с таким id " + catId + " не найдено"));
+        Category category = getCatById(catId);
         return categoryMapper.toDto(category);
     }
 
@@ -42,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
         if (categoryRepository.existsByName(newCategoryDto.name())) {
-            throw new ConflictException("Категория с именем '" + newCategoryDto.name() + "' уже существует");
+            validateName(newCategoryDto.name());
         }
         Category category = categoryMapper.toEntity(newCategoryDto);
         Category savedCategory = categoryRepository.save(category);
@@ -52,13 +51,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
-        Category category = categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException("Категория с id " + catId + " не найдена"));
-        if (!category.getName().equals(categoryDto.name()) &&
-                categoryRepository.existsByName(categoryDto.name())) {
-            throw new ConflictException("Категория с именем '" + categoryDto.name() + "' уже существует");
+        Category category = getCatById(catId);
+        if (!category.getName().equals(categoryDto.name())) {
+            validateName(categoryDto.name());
         }
-
         category.setName(categoryDto.name());
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toDto(updatedCategory);
@@ -67,8 +63,18 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long catId) {
-        Category category = categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException("Категория с id " + catId + " не найдена"));
+        Category category = getCatById(catId);
         categoryRepository.delete(category);
+    }
+
+    private Category getCatById(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Категория с id " + catId + " не найдена"));
+    }
+
+    private void validateName(String name) {
+        if (categoryRepository.existsByName(name)) {
+            throw new ConflictException("Категория с именем '" + name + "' уже существует");
+        }
     }
 }
