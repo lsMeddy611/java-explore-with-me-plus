@@ -21,4 +21,15 @@ public class ErrorHandler {
         return ResponseEntity.internalServerError().body(
                 new ApiError(stackTrace, e.getMessage(), "Данные не найдены", "404"));
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(final ConflictException e) {
+        log.info("409 {}", e.getMessage(), e);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        return ResponseEntity.internalServerError().body(
+                new ApiError(stackTrace, e.getMessage(), "Конфликт данных", "409"));
+    }
 }
