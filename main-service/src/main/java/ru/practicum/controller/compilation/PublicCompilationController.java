@@ -1,4 +1,4 @@
-package ru.practicum.controller;
+package ru.practicum.controller.compilation;
 
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.compilation.CompilationDto;
-import ru.practicum.service.CompilationService;
+import ru.practicum.service.compilation.CompilationService;
 
 import java.util.List;
 
