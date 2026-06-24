@@ -1,8 +1,14 @@
 package ru.practicum.service.event;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
@@ -12,12 +18,16 @@ import ru.practicum.dto.event.EventState;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventUserRequest;
 import ru.practicum.dto.event.UserStateAction;
+import ru.practicum.dto.event.param_objects.PublicEventsFilter;
+import ru.practicum.dto.participation.RequestStatusAction;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
+import ru.practicum.model.QEvent;
+import ru.practicum.model.QRequest;
 import ru.practicum.model.User;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
@@ -134,6 +144,88 @@ public class EventServiceImpl implements EventService {
         Event saved = eventRepository.save(event);
         Long views = getViews(List.of(saved.getId())).getOrDefault(saved.getId(), 0L);
         return eventMapper.toFullDto(saved, views);
+    }
+
+    @Override
+    public List<EventShortDto> getPublishedEvents(PublicEventsFilter filter) {
+        log.info("Поиск опубликованных событий с фильтром: {}", filter);
+
+        Predicate predicate = buildPredicate(filter);
+        Sort sort = buildSort(filter);
+        int page = filter.from() / filter.size();
+        Pageable pageable = PageRequest.of(page, filter.size(), sort);
+        List<Event> events = eventRepository.findAll(predicate, pageable).getContent();
+
+        // TODO Доделать после залива ветки с запросами
+/*        return events.stream()
+                .map(event -> {
+                    Long views = getEventViews(event.getId());
+                    Long confirmedRequests = requestRepository
+                            .countByEventIdAndStatus(event.getId(), RequestStatusAction.CONFIRMED);
+                    return EventMapper.toEventShortDto(event, views, confirmedRequests);
+                })
+                .collect(Collectors.toList());*/
+        return null;
+    }
+
+    private Predicate buildPredicate(PublicEventsFilter filter) {
+        QEvent event = QEvent.event;
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(event.state.eq(String.valueOf(EventState.PUBLISHED)));
+
+        if (filter.text() != null && !filter.text().isBlank()) {
+            String searchText = "%" + filter.text().toLowerCase() + "%";
+            BooleanExpression textCondition = Expressions.stringTemplate(
+                            "LOWER({0})", event.annotation
+                    ).like(searchText)
+                    .or(Expressions.stringTemplate(
+                            "LOWER({0})", event.description
+                    ).like(searchText));
+            builder.and(textCondition);
+        }
+
+        if (filter.categories() != null && !filter.categories().isEmpty()) {
+            builder.and(event.category.id.in(filter.categories()));
+        }
+
+        if (filter.paid() != null) {
+            builder.and(event.paid.eq(filter.paid()));
+        }
+
+        LocalDateTime startDate = filter.getRangeStartDateTime();
+        LocalDateTime endDate = filter.getRangeEndDateTime();
+
+        if (startDate != null && endDate != null) {
+            builder.and(event.eventDate.between(startDate, endDate));
+        } else if (startDate != null) {
+            builder.and(event.eventDate.after(startDate));
+        } else if (endDate != null) {
+            builder.and(event.eventDate.before(endDate));
+        }
+
+        if (filter.hasOnlyAvailable()) {
+            QRequest request = QRequest.request;
+            BooleanExpression availableCondition = event.participantLimit.eq(0)
+                    .or(Expressions.numberTemplate(Long.class,
+                            "(SELECT COUNT(r.id) FROM Request r WHERE r.event.id = {0} AND r.status = {1})",
+                            event.id, RequestStatusAction.CONFIRMED
+                    ).lt(event.participantLimit));
+            builder.and(availableCondition);
+        }
+
+        return builder.getValue();
+    }
+
+    private Sort buildSort(PublicEventsFilter filter) {
+        if (filter.sort() != null && filter.sort().equalsIgnoreCase("VIEWS")) {
+            return Sort.by(Sort.Direction.DESC, "views");
+        } else {
+            return Sort.by(Sort.Direction.ASC, "eventDate");
+        }
+    }
+
+    private Long getEventViews(Long eventId) {
+        return null;
     }
 
     private User getUserOrThrow(Long userId) {

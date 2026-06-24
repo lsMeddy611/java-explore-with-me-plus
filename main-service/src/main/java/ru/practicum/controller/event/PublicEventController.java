@@ -34,10 +34,10 @@ public class PublicEventController {
     private static final String APP_NAME = "ewm-main-service";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    @GetMapping
+/*    @GetMapping
     public ResponseEntity<List<EventShortDto>> getEventsByFilter() {
         return null;
-    }
+    }*/
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getEventById(@PositiveOrZero @PathVariable("eventId") Long eventId,
