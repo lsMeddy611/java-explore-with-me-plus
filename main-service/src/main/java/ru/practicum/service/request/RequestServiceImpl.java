@@ -11,7 +11,9 @@ import ru.practicum.mapper.request.RequestMapper;
 import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 import ru.practicum.model.User;
+import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.request.RequestRepository;
+import ru.practicum.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,8 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -38,14 +42,13 @@ public class RequestServiceImpl implements RequestService {
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Нельзя добавить повторный запрос");
         }
-        // TODO добавить проверки на существование пользователя и события
+        //не использую методы для поиска и проброса исключений из сервиса EventRequestServiceImpl
+        //т.к. реализован поиск для конкретного пользователя
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
-        // TODO заглушки, ибо нужны репозитории, заменить
-        User user = new User();
-        user.setId(userId);
-        Event event = new Event();
-        event.setId(eventId);
-
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
         Request request = Request.builder()
                 .requester(user)
                 .event(event)
