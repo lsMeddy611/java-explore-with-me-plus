@@ -44,4 +44,15 @@ public class ErrorHandler {
         return ResponseEntity.internalServerError().body(
                 new ApiError(stackTrace, e.getMessage(), "Непредвиденная ошибка сервера", "500"));
     }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidationException(final ValidationException e) {
+        log.info("400 {}", e.getMessage(), e);
+        StringWriter sw = new StringWriter();     //может подумаем, как сократить эту конструкцию?
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        return ResponseEntity.internalServerError().body(
+                new ApiError(stackTrace, e.getMessage(), "Ошибка валидации данных", "400"));
+    }
 }
