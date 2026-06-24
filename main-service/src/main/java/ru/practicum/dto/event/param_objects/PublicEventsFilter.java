@@ -2,6 +2,7 @@ package ru.practicum.dto.event.param_objects;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+import ru.practicum.dto.event.EventSort;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,14 +10,14 @@ import java.util.List;
 import java.util.Objects;
 
 public record PublicEventsFilter(
-        @Size(min = 1, max = 7000)
+        @Size(max = 7000)
         String text,
         List<Long> categories,
         Boolean paid,
         String rangeStart,
         String rangeEnd,
         Boolean onlyAvailable,
-        String sort,
+        EventSort sort,
         @Min(0)
         Integer from,
         @Min(1)
@@ -31,13 +32,11 @@ public record PublicEventsFilter(
         categories = Objects.requireNonNullElse(categories, List.of());
         text = Objects.requireNonNullElse(text, "");
 
-        if ((rangeStart == null || rangeStart.isBlank()) && (rangeEnd == null || rangeEnd.isBlank())) {
+        if ((rangeStart == null || rangeStart.isBlank())) {
             rangeStart = LocalDateTime.now().format(FORMATTER);
         }
 
-        paid = Objects.requireNonNullElse(paid, null);
-        rangeEnd = Objects.requireNonNullElse(rangeEnd, null);
-        sort = Objects.requireNonNullElse(sort, null);
+        rangeEnd = Objects.requireNonNullElse(rangeEnd, "");
     }
 
     public String getNormalizedText() {

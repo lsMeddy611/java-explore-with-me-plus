@@ -4,37 +4,31 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.EventState;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserRequest;
-import ru.practicum.dto.event.UserStateAction;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
-import ru.practicum.dto.participation.RequestStatusAction;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
-import ru.practicum.model.QEvent;
-import ru.practicum.model.QRequest;
-import ru.practicum.model.User;
+import ru.practicum.model.*;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,6 +37,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class EventServiceImpl implements EventService {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private JPAQueryFactory queryFactory;
+
+    @PostConstruct
+    public void init() {
+        queryFactory = new JPAQueryFactory(entityManager);
+    }
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
@@ -108,9 +111,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId) {
+        log.info("Получение подробного описания ивента по его id= {}", eventId);
         getUserOrThrow(userId);
         Event event = getOwnedEventOrThrow(userId, eventId);
+        log.debug("Получение Views для ивента");
         Long views = getViews(List.of(event.getId())).getOrDefault(event.getId(), 0L);
+        log.debug("Views успешно получены");
+        log.info("Описание ивента успешно получено");
         return eventMapper.toFullDto(event, views);
     }
 
@@ -149,32 +156,36 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getPublishedEvents(PublicEventsFilter filter) {
         log.info("Поиск опубликованных событий с фильтром: {}", filter);
+        Predicate predicate = predicateFromFilter(filter);
+        List<Event> events = queryFactory
+                .selectFrom(QEvent.event)
+                .leftJoin(QEvent.event.category).fetchJoin()
+                .leftJoin(QEvent.event.initiator).fetchJoin()
+                .where(predicate)
+                .fetch();
+        log.debug("Получение Views для опубликованных событий");
+        List<Long> eventsId = events.stream().map(Event::getId).toList();
+        log.debug("Views получены");
+        Map<Long, Long> views = getViews(eventsId);
+        log.info("События успешно получены");
 
-        Predicate predicate = buildPredicate(filter);
-        Sort sort = buildSort(filter);
-        int page = filter.from() / filter.size();
-        Pageable pageable = PageRequest.of(page, filter.size(), sort);
-        List<Event> events = eventRepository.findAll(predicate, pageable).getContent();
-
-        // TODO Доделать после залива ветки с запросами
-/*        return events.stream()
-                .map(event -> {
-                    Long views = getEventViews(event.getId());
-                    Long confirmedRequests = requestRepository
-                            .countByEventIdAndStatus(event.getId(), RequestStatusAction.CONFIRMED);
-                    return EventMapper.toEventShortDto(event, views, confirmedRequests);
-                })
-                .collect(Collectors.toList());*/
-        return null;
+        return events.stream()
+                .map(event -> eventMapper.toShortDto(event, views.getOrDefault(event.getId(), 0L)))
+                .sorted(sortByViews(filter)
+                        ? Comparator.comparingLong(EventShortDto::views).reversed()
+                        : Comparator.comparing(EventShortDto::eventDate))
+                .skip(filter.from())
+                .limit(filter.size())
+                .toList();
     }
 
-    private Predicate buildPredicate(PublicEventsFilter filter) {
+    private Predicate predicateFromFilter(PublicEventsFilter filter) {
         QEvent event = QEvent.event;
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(event.state.eq(String.valueOf(EventState.PUBLISHED)));
+        builder.and(event.state.eq(String.valueOf(EventState.PENDING)));
 
         if (filter.text() != null && !filter.text().isBlank()) {
-            String searchText = "%" + filter.text().toLowerCase() + "%";
+            String searchText = "%" + filter.getNormalizedText() + "%";
             BooleanExpression textCondition = Expressions.stringTemplate(
                             "LOWER({0})", event.annotation
                     ).like(searchText)
@@ -203,29 +214,15 @@ public class EventServiceImpl implements EventService {
             builder.and(event.eventDate.before(endDate));
         }
 
-        if (filter.hasOnlyAvailable()) {
-            QRequest request = QRequest.request;
-            BooleanExpression availableCondition = event.participantLimit.eq(0)
-                    .or(Expressions.numberTemplate(Long.class,
-                            "(SELECT COUNT(r.id) FROM Request r WHERE r.event.id = {0} AND r.status = {1})",
-                            event.id, RequestStatusAction.CONFIRMED
-                    ).lt(event.participantLimit));
-            builder.and(availableCondition);
+        if (filter.onlyAvailable()) {
+            builder.and(event.confirmedRequests.lt(event.participantLimit));
         }
 
         return builder.getValue();
     }
 
-    private Sort buildSort(PublicEventsFilter filter) {
-        if (filter.sort() != null && filter.sort().equalsIgnoreCase("VIEWS")) {
-            return Sort.by(Sort.Direction.DESC, "views");
-        } else {
-            return Sort.by(Sort.Direction.ASC, "eventDate");
-        }
-    }
-
-    private Long getEventViews(Long eventId) {
-        return null;
+    private boolean sortByViews(PublicEventsFilter filter) {
+        return filter.sort() != null && filter.sort().equals(EventSort.VIEWS);
     }
 
     private User getUserOrThrow(Long userId) {
