@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -58,4 +59,7 @@ public class Event {
 
     @Column(name = "location_lon")
     private Double lon;
+
+    @ManyToMany(mappedBy = "events")
+    private List<Compilation> compilations;
 }
