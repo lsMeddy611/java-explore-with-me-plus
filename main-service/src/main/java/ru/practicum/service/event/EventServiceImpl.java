@@ -1,6 +1,7 @@
 package ru.practicum.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -41,6 +43,16 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final StatsClient statsClient;
+
+    @Override
+    public EventFullDto getEventById(Long eventId) {
+        log.info("Получение ивента по id= {}", eventId);
+        Event event = getEventByIdOrThrow(eventId);
+        Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
+        log.info("Ивент успешно получен");
+
+        return eventMapper.toFullDto(event, views);
+    }
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
@@ -140,10 +152,15 @@ public class EventServiceImpl implements EventService {
         }
         List<String> uris = eventIds.stream().map(id -> EVENT_URI_PREFIX + id).toList();
         List<ViewStats> stats = statsClient.getHits(
-                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, true);
+                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, false);
         return stats.stream()
                 .collect(Collectors.toMap(
                         stat -> Long.parseLong(stat.uri().substring(EVENT_URI_PREFIX.length())),
                         ViewStats::hits));
+    }
+
+    private Event getEventByIdOrThrow(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Ивента с id= " + eventId + " не существует"));
     }
 }

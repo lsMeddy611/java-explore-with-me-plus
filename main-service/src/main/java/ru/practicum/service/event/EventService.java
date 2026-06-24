@@ -8,6 +8,7 @@ import ru.practicum.dto.event.UpdateEventUserRequest;
 import java.util.List;
 
 public interface EventService {
+    EventFullDto getEventById(Long eventId);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 

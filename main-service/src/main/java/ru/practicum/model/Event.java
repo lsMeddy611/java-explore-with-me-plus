@@ -50,7 +50,7 @@ public class Event {
     @Column(name = "request_moderation")
     private Boolean requestModeration;
 
-    @Column(name = "paid")       //добавил paid  (требование spec)
+    @Column(name = "paid")
     private Boolean paid;
 
     @Column(name = "participant_limit")
