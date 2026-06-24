@@ -1,4 +1,4 @@
-package ru.practicum.mapper.participation;
+package ru.practicum.mapper.request;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

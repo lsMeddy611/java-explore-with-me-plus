@@ -1,4 +1,4 @@
-package ru.practicum.service.participation;
+package ru.practicum.service.event.participation;
 
 import ru.practicum.dto.participation.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.participation.EventRequestStatusUpdateResult;
@@ -6,7 +6,7 @@ import ru.practicum.dto.participation.ParticipationRequestDto;
 
 import java.util.List;
 
-public interface RequestService {
+public interface EventRequestService {
 
     List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId);
 
