@@ -47,9 +47,9 @@ public class EventServiceImpl implements EventService {
         getUserOrThrow(userId);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, PageRequest.of(from / size, size))
                 .getContent();
-        Map<Long, Long> views = getViews(events.stream().map(Event::getId).toList());
+        Map<Long, Long> viewsMap = getViews(events.stream().map(Event::getId).toList());
         return events.stream()
-                .map(event -> eventMapper.toShortDto(event, views.getOrDefault(event.getId(), 0L)))
+                .map(event -> eventMapper.toShortDto(event, viewsMap))
                 .collect(Collectors.toList());
     }
 
@@ -124,17 +124,8 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toFullDto(saved, views);
     }
 
-    private User getUserOrThrow(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
-    }
-
-    private Event getOwnedEventOrThrow(Long userId, Long eventId) {
-        return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Cобытие с id=" + eventId + " не найдено"));
-    }
-
-    private Map<Long, Long> getViews(List<Long> eventIds) {
+    @Override
+    public Map<Long, Long> getViews(List<Long> eventIds) {
         if (eventIds.isEmpty()) {
             return Map.of();
         }
@@ -145,5 +136,15 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toMap(
                         stat -> Long.parseLong(stat.uri().substring(EVENT_URI_PREFIX.length())),
                         ViewStats::hits));
+    }
+
+    private User getUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+    }
+
+    private Event getOwnedEventOrThrow(Long userId, Long eventId) {
+        return eventRepository.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException("Cобытие с id=" + eventId + " не найдено"));
     }
 }

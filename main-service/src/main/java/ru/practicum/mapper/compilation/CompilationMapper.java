@@ -1,4 +1,4 @@
-package ru.practicum.mapper.сompilation;
+package ru.practicum.mapper.compilation;
 
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
