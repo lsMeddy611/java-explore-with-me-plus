@@ -62,8 +62,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        Request request = requestRepository.findByIdAndRequesterId(requestId, userId)    //здесь не вижу смысла выносить
-                .orElseThrow(() -> new NotFoundException(                                //в отдельный метод, один раз юзаю
+        Request request = requestRepository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> new NotFoundException(
                         "Запрос с id=" + requestId + " не найден или принадлежит другому пользователю"
                 ));
         request.setStatus(ParticipationStatus.CANCELED.name());
