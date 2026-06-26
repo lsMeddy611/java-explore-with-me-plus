@@ -70,12 +70,11 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = compilationMapper.toEntity(newCompilationDto);
+        List<Event> events = eventRepository.findAllById(newCompilationDto.events());
+        compilation.setEvents(events);
         Compilation savedCompilation = compilationRepository.save(compilation);
 
-        Set<Long> eventIds = savedCompilation.getEvents().stream()
-                .map(Event::getId)
-                .collect(Collectors.toSet());
-        Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
+        Map<Long, Long> views = eventService.getViews(newCompilationDto.events());
         log.info("Создана новая подборка событий id = {}", savedCompilation.getId());
         return compilationMapper.toDto(savedCompilation, views);
     }

@@ -11,7 +11,6 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
@@ -170,7 +169,7 @@ public class EventServiceImpl implements EventService {
         log.info("События успешно получены");
 
         return events.stream()
-                .map(event -> eventMapper.toShortDto(event, views.getOrDefault(event.getId(), 0L)))
+                .map(event -> eventMapper.toShortDto(event, views))
                 .sorted(sortByViews(filter)
                         ? Comparator.comparingLong(EventShortDto::views).reversed()
                         : Comparator.comparing(EventShortDto::eventDate))
