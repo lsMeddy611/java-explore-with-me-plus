@@ -29,13 +29,14 @@ public class AdminCategoryController {
     }
 
     @PatchMapping("/{catId}")
-    public CategoryDto updateCategory(
+    public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable Long catId,
             @Valid @RequestBody CategoryDto categoryDto) {
 
         log.info("PATCH /admin/categories/{}", catId);
 
-        return categoryService.updateCategory(catId, categoryDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(categoryService.updateCategory(catId, categoryDto));
     }
 
     @DeleteMapping("/{catId}")
