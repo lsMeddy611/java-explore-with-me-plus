@@ -35,7 +35,8 @@ public interface EventMapper {
     @Mapping(target = "location", expression = "java(toLocation(event))")
     EventFullDto toFullDto(Event event, Long views);
 
-    EventShortDto toShortDto(Event event, Long views);
+    @Mapping(target = "views", expression = "java(viewsMap.get(event.getId()))")
+    EventShortDto toShortDto(Event event, @Context Map<Long, Long> viewsMap);
 
     default Location toLocation(Event event) {
         if (event.getLat() == null || event.getLon() == null) {

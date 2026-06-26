@@ -7,6 +7,7 @@ import ru.practicum.dto.event.UpdateEventUserRequest;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EventService {
     EventFullDto getEventById(Long eventId);
@@ -20,4 +21,6 @@ public interface EventService {
     EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
 
     List<EventShortDto> getPublishedEvents(PublicEventsFilter filter);
+
+    Map<Long, Long> getViews(List<Long> eventIds);
 }
