@@ -1,13 +1,18 @@
 package ru.practicum.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -38,6 +43,28 @@ public class ErrorHandler {
         String stackTrace = getStackTrace(HttpStatus.BAD_REQUEST, e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ApiError(stackTrace, e.getMessage(), "Ошибка валидации данных", "400"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String stackTrace = getStackTrace(HttpStatus.BAD_REQUEST, e);
+        String errorMessage = e.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiError(stackTrace, errorMessage, "Ошибка валидации данных", "400"));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException e) {
+        String stackTrace = getStackTrace(HttpStatus.BAD_REQUEST, e);
+        String errorMessage = e.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiError(stackTrace, errorMessage, "Ошибка валидации данных", "400"));
     }
 
     private String getStackTrace(HttpStatus httpStatus, Exception e) {
