@@ -1,10 +1,6 @@
 package ru.practicum.mapper.event;
 
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
@@ -13,6 +9,8 @@ import ru.practicum.dto.location.Location;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.model.Event;
+
+import java.util.Map;
 
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class, UserMapper.class})
 public interface EventMapper {
@@ -37,7 +35,8 @@ public interface EventMapper {
     @Mapping(target = "location", expression = "java(toLocation(event))")
     EventFullDto toFullDto(Event event, Long views);
 
-    EventShortDto toShortDto(Event event, Long views);
+    @Mapping(target = "views", expression = "java(viewsMap.get(event.getId()))")
+    EventShortDto toShortDto(Event event, @Context Map<Long, Long> viewsMap);
 
     default Location toLocation(Event event) {
         if (event.getLat() == null || event.getLon() == null) {

@@ -1,0 +1,1582 @@
+{
+    "version": "2.0.0",
+    "runtimeConfiguration": {
+        "environment": "default",
+        "laxTestingModeEnabled": false,
+        "apiConnectivityCheck": true,
+        "logLevel": "error",
+        "logDestination": "stdout+platform",
+        "logMaxFileSize": 2147483648,
+        "requestHeaderNameRequestId": "x-scan-request-id",
+        "requestHeaderNameScenarioId": "x-scan-scenario-id",
+        "requestHeaderNameRequestType": "x-scan-request-type",
+        "requestFlowrate": 100,
+        "requestTimeout": 30,
+        "requestTlsInsecureSkipVerify": true,
+        "responseFollowRedirection": false,
+        "responseMaxBodySizeScan": 10485760,
+        "happyPathOnly": false,
+        "maxRequestRetryAttempts": 5,
+        "maxScanDuration": 1800,
+        "memoryLimit": 2147483648,
+        "memoryTimeSpan": 10,
+        "reportMaxRequestSizeHappyPath": 8092,
+        "reportMaxRequestSizeTest": 8092,
+        "reportIncludeRequestBody": true,
+        "reportIncludeResponseBody": true,
+        "reportMaxHttpResponseSizeHappyPath": 8092,
+        "reportMaxBodySizeHappyPath": 8092,
+        "reportMaxHttpResponseSizeTest": 8092,
+        "reportMaxBodySizeTest": 8092,
+        "reportIssuesOnly": false,
+        "reportMaxIssues": 1000,
+        "reportMaxSize": 20971520,
+        "reportGenerateCurlCommand": true,
+        "normalizeServerUrls": true
+    },
+    "customizations": {
+        "happyPaths": {
+            "retry": 1,
+            "responsePolicy": {
+                "httpStatusExpected": true,
+                "mustBeConformant": true
+            },
+            "httpStatusExpected": [
+                "2XX",
+                "404"
+            ]
+        },
+        "tests": {
+            "responsePolicy": {
+                "httpStatusExpected": true,
+                "mustBeConformant": true
+            }
+        },
+        "requests": {}
+    },
+    "operations": {
+        "addCategory": {
+            "operationId": "addCategory",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/addCategory/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "addCategory",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/categories",
+                        "method": "POST",
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "name": "Концерты"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "201",
+                "responses": {
+                    "201": {
+                        "expectations": {
+                            "httpStatus": 201
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "addEvent": {
+            "operationId": "addEvent",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/addEvent/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "addEvent",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events",
+                        "method": "POST",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 2982164484202855467
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "annotation": "Сплав на байдарках похож на полет.",
+                                "category": 2,
+                                "description": "Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.",
+                                "eventDate": "2024-12-31 15:10:05",
+                                "location": {
+                                    "lat": 55.754167,
+                                    "lon": 37.62
+                                },
+                                "paid": false,
+                                "participantLimit": 0,
+                                "requestModeration": true,
+                                "title": "Сплав на байдарках"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "201",
+                "responses": {
+                    "201": {
+                        "expectations": {
+                            "httpStatus": 201
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "addParticipationRequest": {
+            "operationId": "addParticipationRequest",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/addParticipationRequest/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "addParticipationRequest",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/requests",
+                        "method": "POST",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 5398338734984403257
+                            }
+                        ],
+                        "queries": [
+                            {
+                                "key": "eventId",
+                                "value": 6984592874639261903
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "201",
+                "responses": {
+                    "201": {
+                        "expectations": {
+                            "httpStatus": 201
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "cancelRequest": {
+            "operationId": "cancelRequest",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/cancelRequest/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "cancelRequest",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/requests/{requestId}/cancel",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 8985167042507310237
+                            },
+                            {
+                                "key": "requestId",
+                                "value": 4840152568321255432
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "changeRequestStatus": {
+            "operationId": "changeRequestStatus",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/changeRequestStatus/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "changeRequestStatus",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events/{eventId}/requests",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 6104565706109573223
+                            },
+                            {
+                                "key": "eventId",
+                                "value": 7381504154633493906
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "requestIds": [
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "status": "CONFIRMED"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "delete": {
+            "operationId": "delete",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/delete/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "delete",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/users/{userId}",
+                        "method": "DELETE",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 1181610561250148726
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "204",
+                "responses": {
+                    "204": {
+                        "expectations": {
+                            "httpStatus": 204
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "deleteCategory": {
+            "operationId": "deleteCategory",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/deleteCategory/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "deleteCategory",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/categories/{catId}",
+                        "method": "DELETE",
+                        "paths": [
+                            {
+                                "key": "catId",
+                                "value": 1702745439774770124
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "204",
+                "responses": {
+                    "204": {
+                        "expectations": {
+                            "httpStatus": 204
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "deleteCompilation": {
+            "operationId": "deleteCompilation",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/deleteCompilation/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "deleteCompilation",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/compilations/{compId}",
+                        "method": "DELETE",
+                        "paths": [
+                            {
+                                "key": "compId",
+                                "value": 8199530162135959153
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "204",
+                "responses": {
+                    "204": {
+                        "expectations": {
+                            "httpStatus": 204
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getCategories": {
+            "operationId": "getCategories",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getCategories/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getCategories",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/categories",
+                        "method": "GET",
+                        "queries": [
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getCategory": {
+            "operationId": "getCategory",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getCategory/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getCategory",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/categories/{catId}",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "catId",
+                                "value": 7796729654020032727
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getCompilation": {
+            "operationId": "getCompilation",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getCompilation/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getCompilation",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/compilations/{compId}",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "compId",
+                                "value": 4940840556689546329
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getCompilations": {
+            "operationId": "getCompilations",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getCompilations/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getCompilations",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/compilations",
+                        "method": "GET",
+                        "queries": [
+                            {
+                                "key": "pinned",
+                                "value": false
+                            },
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getEvent": {
+            "operationId": "getEvent",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEvent/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEvent",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events/{eventId}",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 2372635210652152851
+                            },
+                            {
+                                "key": "eventId",
+                                "value": 3657773506859676478
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getEventParticipants": {
+            "operationId": "getEventParticipants",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEventParticipants/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEventParticipants",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events/{eventId}/requests",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 4795513296714530945
+                            },
+                            {
+                                "key": "eventId",
+                                "value": 6343993923662649391
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getEvent_1": {
+            "operationId": "getEvent_1",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEvent_1/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEvent_1",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/events/{id}",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "id",
+                                "value": 72884922613295904
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getEvents": {
+            "operationId": "getEvents",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEvents/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEvents",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 975472071550789664
+                            }
+                        ],
+                        "queries": [
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getEvents_1": {
+            "operationId": "getEvents_1",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEvents_1/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEvents_1",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/events",
+                        "method": "GET",
+                        "queries": [
+                            {
+                                "key": "rangeStart",
+                                "value": "fxjweplkhklqfvexolpixsgvaudihxyt"
+                            },
+                            {
+                                "key": "rangeEnd",
+                                "value": "kjkjkjxztihrxowlgbuqzhfokspnvhxx"
+                            },
+                            {
+                                "key": "onlyAvailable",
+                                "value": false
+                            },
+                            {
+                                "key": "sort",
+                                "value": "VIEWS"
+                            },
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            },
+                            {
+                                "key": "paid",
+                                "value": true
+                            },
+                            {
+                                "key": "categories",
+                                "value": [
+                                    8377001317582742173,
+                                    8377001317582742173,
+                                    8377001317582742173,
+                                    8377001317582742173
+                                ]
+                            },
+                            {
+                                "key": "text",
+                                "value": "nlkwvpsjjpadkusszzabmxdhhhnwgibfcbbokhuewdqmrzcucbbzzwobrcexoemcsftfoqompllytcqxeltcsssyuuyqpxjfubodhgnylcroxtbbyyrgrktnoammsrwvwapxzsciuzsqjuimmffzigqochbpxgnlbubjrjqahgolnjnohedxvvlamyetudbewwqapwwgdhozdwhkboklbdrrkyorsjyaenjnddoificfzmoxbkdbxrxjlaxfndfvkxkvlvirmzkyndreituyomflosjhtmrxsaeavfgtruzykjtcqgxaangekcfligaxfnnkvdtxgwqscgpsymdfhctciiysybahtcpsmrmfrqfplptplvzyixccohwwtaibiuorulucwtzarjmzkvmypfexakqmdtnkjpvtarxtcwitsvshhctcvquoduwjfkmticlwgusyffpxdztlasladyxrntjjwkativspvklofveqxynhstsgcdouokhdmkziuvfmszfaubmkrjtgxhdzdxmahijwyizhjvuucazruwdneoqvowpznkznbjmpxvxqelekzdquuolasydancadjmbkqnghhcbkxhteuwznxgmhqqlbnsrsrqlpjujoxdvieljsjnmcxsvjuhwrkrwknnocdyzxefzebrtcgsojullqtiydnhqjbcnckvksuvzamrmpaggqilqtwuhhjzsrpexlooqdlynjkmrkncnaiiuaersmkgdtgsnusmftjcbomrrhblfvafhbguwifmavfvcbvsvtvfzywatwsnpjsvehtytyfeamqroxdjeymbfpdygfeoebtsxbzgiotixcxpgadlhzybcshhkmmrkjypolosyzhytugainytalwfxrybbddjrdqnjvyixsjytjyrseubloihuyetecucsuyhdtuqvcxzwckfvsbcwxnwsyxhryvzouaouysoocphiqzftkydwetbkjsoadyugfkfflwibvslirwnaoonbwrpufhtnteiwcygxogvtrngpvmueqmxvwmoihtpddcenmqduvfociadpivwgqrqpiijwwtqzhrtywfvclcxrxviuytmloxllnxedljqzlhrifuzrtxwwtjsnfyawfbvbxkepevovfbkvdbhwmuhutjuoveqddbvrllrmzqpohgwihxuzoqhmgbjduxfgdtfzrksxcnthsgevttahvnboydjliavvrxqtgvuqrvlrkmxbheelvrtlxkpbbqozmwkcdpwljbqbkkkbptjjpuwdmzqgblypcvdcbllcsqzffryheozmybvzwknoylsjdcrqevautnnxfwlkzjvdsofkpvcfemxljjmgebdktjjcumrfxeubkhwvqypkoldnfsvzyqheevcauhtgoqhzghboskjwmkaqkdryeaiqgfccolyibakattnnnjnppxnwaqvxkrpcezcpdywhpelcumosivngkxhueolsprezyvvmjmqgmjczbitgwuetbncdjyvzxwsmexuqpzffvudylhtaggmkmrwmogeawntokxdvvxbyzbkcoaksyrwzchnrwubrlevypecniyrgrjilbmtvmatnvttjsocbmorifbgzojulcbfdnxxwxucebfowsbtqvuycpsisvcsyaduputizwgrzfganpvqbzkxfavodskjqlfabbfhbrwlttsesxwreaxvvrqhwk"
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getEvents_2": {
+            "operationId": "getEvents_2",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getEvents_2/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getEvents_2",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/events",
+                        "method": "GET",
+                        "queries": [
+                            {
+                                "key": "states",
+                                "value": [
+                                    "ckioyzlqrbhzzxffguxvtcsrbkkgkzzv",
+                                    "ckioyzlqrbhzzxffguxvtcsrbkkgkzzv"
+                                ]
+                            },
+                            {
+                                "key": "categories",
+                                "value": [
+                                    1518534935227130915,
+                                    1518534935227130915,
+                                    1518534935227130915,
+                                    1518534935227130915
+                                ]
+                            },
+                            {
+                                "key": "rangeStart",
+                                "value": "yujmpmenlfqebkykzqjqifuguyekombe"
+                            },
+                            {
+                                "key": "rangeEnd",
+                                "value": "zmnpjrybkvnkgnzbdulrutxjohaczvfk"
+                            },
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            },
+                            {
+                                "key": "users",
+                                "value": [
+                                    1746342968056926290,
+                                    1746342968056926290,
+                                    1746342968056926290,
+                                    1746342968056926290
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "getUserRequests": {
+            "operationId": "getUserRequests",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getUserRequests/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getUserRequests",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/requests",
+                        "method": "GET",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 3838533787091897245
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "getUsers": {
+            "operationId": "getUsers",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/getUsers/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "getUsers",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/users",
+                        "method": "GET",
+                        "queries": [
+                            {
+                                "key": "ids",
+                                "value": [
+                                    8878235109920661310
+                                ]
+                            },
+                            {
+                                "key": "from",
+                                "value": 0
+                            },
+                            {
+                                "key": "size",
+                                "value": 10
+                            }
+                        ]
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    }
+                }
+            }
+        },
+        "registerUser": {
+            "operationId": "registerUser",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/registerUser/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "registerUser",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/users",
+                        "method": "POST",
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "email": "ivan.petrov@practicummail.ru",
+                                "name": "Иван Петров"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "201",
+                "responses": {
+                    "201": {
+                        "expectations": {
+                            "httpStatus": 201
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "saveCompilation": {
+            "operationId": "saveCompilation",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/saveCompilation/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "saveCompilation",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/compilations",
+                        "method": "POST",
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "events": [
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "pinned": false,
+                                "title": "Летние концерты"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "201",
+                "responses": {
+                    "201": {
+                        "expectations": {
+                            "httpStatus": 201
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "updateCategory": {
+            "operationId": "updateCategory",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/updateCategory/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "updateCategory",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/categories/{catId}",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "catId",
+                                "value": 4238083479129863308
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "name": "Концерты"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "updateCompilation": {
+            "operationId": "updateCompilation",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/updateCompilation/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "updateCompilation",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/compilations/{compId}",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "compId",
+                                "value": 4211056276454932585
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "events": [
+                                    2324025441718593442,
+                                    7478499344665378568,
+                                    7441500856441515279,
+                                    5516643542859033931,
+                                    7857535851721247453
+                                ],
+                                "pinned": true,
+                                "title": "Необычные фотозоны"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    }
+                }
+            }
+        },
+        "updateEvent": {
+            "operationId": "updateEvent",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/updateEvent/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "updateEvent",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/users/{userId}/events/{eventId}",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "userId",
+                                "value": 2731475433740598302
+                            },
+                            {
+                                "key": "eventId",
+                                "value": 6409870875529930382
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "annotation": "Сап прогулки по рекам и каналам – это возможность увидеть Практикбург с другого ракурса",
+                                "category": 3,
+                                "description": "От английского SUP - Stand Up Paddle — \"стоя на доске с веслом\", гавайская разновидность сёрфинга, в котором серфер, стоя на доске, катается на волнах и при этом гребет веслом, а не руками, как в классическом серфинге.",
+                                "eventDate": "2023-10-11 23:10:05",
+                                "location": {
+                                    "lat": 55.754167,
+                                    "lon": 37.62
+                                },
+                                "paid": true,
+                                "participantLimit": 7,
+                                "requestModeration": false,
+                                "stateAction": "CANCEL_REVIEW",
+                                "title": "Сап прогулки по рекам и каналам"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "400": {
+                        "expectations": {
+                            "httpStatus": 400
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        },
+        "updateEvent_1": {
+            "operationId": "updateEvent_1",
+            "scenarios": [
+                {
+                    "key": "happy.path",
+                    "fuzzing": true,
+                    "requests": [
+                        {
+                            "$ref": "#/operations/updateEvent_1/request",
+                            "fuzzing": true
+                        }
+                    ]
+                }
+            ],
+            "request": {
+                "operationId": "updateEvent_1",
+                "request": {
+                    "type": "42c",
+                    "details": {
+                        "url": "{{host}}/admin/events/{eventId}",
+                        "method": "PATCH",
+                        "paths": [
+                            {
+                                "key": "eventId",
+                                "value": 2125458108341607917
+                            }
+                        ],
+                        "headers": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "requestBody": {
+                            "mode": "json",
+                            "json": {
+                                "annotation": "Сап прогулки по рекам и каналам – это возможность увидеть Практикбург с другого ракурса",
+                                "category": 3,
+                                "description": "От английского SUP - Stand Up Paddle — \"стоя на доске с веслом\", гавайская разновидность сёрфинга, в котором серфер, стоя на доске, катается на волнах и при этом гребет веслом, а не руками, как в классическом серфинге.",
+                                "eventDate": "2023-10-11 23:10:05",
+                                "location": {
+                                    "lat": 55.754167,
+                                    "lon": 37.62
+                                },
+                                "paid": true,
+                                "participantLimit": 7,
+                                "requestModeration": false,
+                                "stateAction": "REJECT_EVENT",
+                                "title": "Сап прогулки по рекам и каналам"
+                            }
+                        }
+                    }
+                },
+                "defaultResponse": "200",
+                "responses": {
+                    "200": {
+                        "expectations": {
+                            "httpStatus": 200
+                        }
+                    },
+                    "404": {
+                        "expectations": {
+                            "httpStatus": 404
+                        }
+                    },
+                    "409": {
+                        "expectations": {
+                            "httpStatus": 409
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "environments": {
+        "default": {
+            "variables": {
+                "host": {
+                    "from": "environment",
+                    "name": "SCAN42C_HOST",
+                    "required": false,
+                    "default": "http://localhost:8080"
+                }
+            }
+        }
+    }
+}

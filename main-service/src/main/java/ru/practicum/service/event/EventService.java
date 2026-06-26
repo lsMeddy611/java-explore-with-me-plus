@@ -6,6 +6,7 @@ import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventUserRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EventService {
 
@@ -16,4 +17,6 @@ public interface EventService {
     EventFullDto getUserEvent(Long userId, Long eventId);
 
     EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
+
+    Map<Long, Long> getViews(List<Long> eventIds);
 }
