@@ -2,6 +2,7 @@ package ru.practicum.service.user;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.QUser;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(NewUserRequest newUserRequest) {
         log.info("Создание пользователя user={}", newUserRequest);
+        emailExists(newUserRequest.email());
         User user = userMapper.toUser(newUserRequest);
         user = userRepository.save(user);
         log.info("Пользователь успешно создан id= {}", user.getId());
@@ -72,5 +74,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return builder.getValue();
+    }
+
+    private void emailExists(String email) {
+        if(userRepository.existsByEmail(email)) {
+            throw new ConflictException("Пользователь с почтой: " + email + " уже существует");
+        }
     }
 }

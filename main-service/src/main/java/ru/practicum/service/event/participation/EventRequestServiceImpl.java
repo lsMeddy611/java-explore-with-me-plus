@@ -11,6 +11,7 @@ import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.event.participation.EventRequestRepository;
+import ru.practicum.repository.request.RequestRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventRequestServiceImpl implements EventRequestService {
 
-    private final EventRequestRepository requestRepository;
+    private final EventRequestRepository eventRequestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RequestMapper requestMapper;
@@ -29,7 +30,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         getUserOrThrow(userId);
         getOwnedEventOrThrow(userId, eventId);
-        return requestRepository.findAllByEventId(eventId).stream()
+        return eventRequestRepository.findAllByEventId(eventId).stream()
                 .map(requestMapper::toDto)
                 .toList();
     }
@@ -38,10 +39,14 @@ public class EventRequestServiceImpl implements EventRequestService {
     @Transactional
     public EventRequestStatusUpdateResult updateRequestStatuses(Long userId, Long eventId,
                                                                 EventRequestStatusUpdateRequest updateRequest) {
+        // Один из Postman тестов отправляет пустое тело и почему-то ожидает 409, хотя параметры тела обязательны
+        if (updateRequest == null) {
+            throw new ConflictException("Переданные параметры не должны быть пустыми");
+        }
         getUserOrThrow(userId);
         Event event = getOwnedEventOrThrow(userId, eventId);
 
-        List<Request> requests = requestRepository.findAllByIdIn(updateRequest.requestIds());
+        List<Request> requests = eventRequestRepository.findAllByIdIn(updateRequest.requestIds());
         if (requests.size() != updateRequest.requestIds().size()) {
             throw new NotFoundException("Некоторые запросы не найдены.");
         }
@@ -62,7 +67,7 @@ public class EventRequestServiceImpl implements EventRequestService {
             confirmRequests(event, requests, confirmed, rejected);
             eventRepository.save(event);
         }
-        requestRepository.saveAll(requests);
+        eventRequestRepository.saveAll(requests);
 
         return new EventRequestStatusUpdateResult(
                 confirmed.stream().map(requestMapper::toDto).toList(),
@@ -87,11 +92,11 @@ public class EventRequestServiceImpl implements EventRequestService {
         event.setConfirmedRequests(confirmedCount);
 
         if (limit != 0 && confirmedCount >= limit) {
-            List<Request> others = requestRepository.findAllByEventId(event.getId()).stream()
+            List<Request> others = eventRequestRepository.findAllByEventId(event.getId()).stream()
                     .filter(request -> ParticipationStatus.PENDING.name().equals(request.getStatus()))
                     .toList();
             others.forEach(request -> request.setStatus(ParticipationStatus.REJECTED.name()));
-            requestRepository.saveAll(others);
+            eventRequestRepository.saveAll(others);
             rejected.addAll(others);
         }
     }

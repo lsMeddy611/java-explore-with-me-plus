@@ -11,7 +11,7 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.compilation.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
-import ru.practicum.repository.CompilationRepository;
+import ru.practicum.repository.compilation.CompilationRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.service.event.EventService;
 

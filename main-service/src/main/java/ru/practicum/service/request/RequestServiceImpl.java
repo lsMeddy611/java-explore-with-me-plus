@@ -17,6 +17,7 @@ import ru.practicum.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,13 +43,15 @@ public class RequestServiceImpl implements RequestService {
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Нельзя добавить повторный запрос");
         }
-        //не использую методы для поиска и проброса исключений из сервиса EventRequestServiceImpl
-        //т.к. реализован поиск для конкретного пользователя
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        requestorEqualsEventOwner(userId, event);
+        eventNotPublished(event);
+        participantsLimit(event);
         Request request = Request.builder()
                 .requester(user)
                 .event(event)
@@ -56,6 +59,7 @@ public class RequestServiceImpl implements RequestService {
                 .status(ParticipationStatus.PENDING.name())
                 .build();
         Request saved = requestRepository.save(request);
+
         return requestMapper.toDto(saved);
     }
 
@@ -69,5 +73,24 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(ParticipationStatus.CANCELED.name());
         Request canceled = requestRepository.save(request);
         return requestMapper.toDto(canceled);
+    }
+
+    private void requestorEqualsEventOwner(Long requestorId, Event event) {
+        if (requestorId.equals(event.getInitiator().getId())) {
+            throw new ConflictException(
+                    "Запрос на участие события не может быть создан его владельцем id= " + requestorId);
+        }
+    }
+
+    private void eventNotPublished(Event event) {
+        if (event.getPublishedOn() == null) {
+            throw new ConflictException("Нельзя участвовать в неопубликованном событии id: " + event.getId());
+        }
+    }
+
+    private void participantsLimit(Event event) {
+        if (requestRepository.countByEventId(event.getId()) >= event.getParticipantLimit()) {
+            throw new ConflictException("В событии id: " + event.getId() + " больше нет свободных мест");
+        }
     }
 }
