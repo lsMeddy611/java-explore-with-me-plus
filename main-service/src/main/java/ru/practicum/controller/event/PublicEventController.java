@@ -38,11 +38,7 @@ public class PublicEventController {
     public ResponseEntity<List<EventShortDto>> getEventsByFilter(@ModelAttribute @Valid PublicEventsFilter filter,
                                                                  HttpServletRequest request) {
         log.info("/GET /events");
-        String ip = request.getRemoteAddr();
-        String uri = request.getRequestURI();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
-        String createdOn = LocalDateTime.now().format(formatter);
-        EndpointHitInfo endpointHitInfo = new EndpointHitInfo(APP_NAME, uri, ip, createdOn);
+        EndpointHitInfo endpointHitInfo = createEndpointHitInfo(request);
 
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getPublishedEvents(filter, endpointHitInfo));
     }
@@ -51,11 +47,7 @@ public class PublicEventController {
     public ResponseEntity<EventFullDto> getEventById(@PositiveOrZero @PathVariable("eventId") Long eventId,
                                                      HttpServletRequest request) {
         log.info("GET /events/{}", eventId);
-        String ip = request.getRemoteAddr();
-        String uri = request.getRequestURI();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
-        String createdOn = LocalDateTime.now().format(formatter);
-        EndpointHit endpointHit = new EndpointHit(null, APP_NAME, uri, ip, createdOn);
+        EndpointHit endpointHit = createEndpointHit(request);
 
         try {
             statsClient.saveHit(endpointHit);
@@ -64,5 +56,23 @@ public class PublicEventController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(eventId));
+    }
+
+    private EndpointHit createEndpointHit(HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        String uri = request.getRequestURI();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+        String createdOn = LocalDateTime.now().format(formatter);
+
+        return new EndpointHit(null, APP_NAME, uri, ip, createdOn);
+    }
+
+    private EndpointHitInfo createEndpointHitInfo(HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        String uri = request.getRequestURI();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+        String createdOn = LocalDateTime.now().format(formatter);
+
+        return new EndpointHitInfo(APP_NAME, uri, ip, createdOn);
     }
 }

@@ -54,10 +54,11 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto getCompilation(long compId) {
+        log.info("Получение подборки событий по id: {}", compId);
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка событий с указанным ID не найдена"));
 
-        log.info("Получена подборка событий с id = {}", compilation.getId());
+        log.debug("Получена подборка событий с id = {}", compilation.getId());
 
         Set<Long> eventIds = compilation.getEvents().stream()
                 .map(Event::getId)
@@ -70,6 +71,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
+        log.info("Создание подборки событий: {}", newCompilationDto);
         List<Event> events = loadingEvents(newCompilationDto.events());
         Compilation compilation = compilationMapper.toEntity(newCompilationDto, events);
         Compilation savedCompilation = compilationRepository.save(compilation);
@@ -79,15 +81,19 @@ public class CompilationServiceImpl implements CompilationService {
                 .collect(Collectors.toSet());
 
         Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
-        log.info("Создана новая подборка событий id = {}", savedCompilation.getId());
+        log.debug("Создана новая подборка событий id = {}", savedCompilation.getId());
         return compilationMapper.toDto(savedCompilation, views);
     }
 
     @Override
     @Transactional
     public CompilationDto updateCompilation(long compId, UpdateCompilationRequest updateCompilationRequest) {
+        log.info("Обновление подборки событий по id: {}, {}", compId, updateCompilationRequest);
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Подборка событий с указанным ID не найдена"));
+                .orElseThrow(() -> {
+                    log.warn("Попытка обновить несуществующую подборку событий по id: {}", compId);
+                    return new NotFoundException("Подборка событий с указанным ID не найдена");
+                });
 
         Set<Long> eventIds = Set.of();
 
@@ -109,7 +115,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         Compilation updatedCompilation = compilationRepository.save(compilation);
-        log.info("Обновлена подборка событий id = {}", updatedCompilation.getId());
+        log.debug("Обновлена подборка событий id = {}", updatedCompilation.getId());
 
         Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
         return compilationMapper.toDto(updatedCompilation, views);
@@ -118,14 +124,17 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteCompilation(long compId) {
+        log.info("Удаление подборки событий по id: {}", compId);
         if (!compilationRepository.existsById(compId)) {
             log.warn("Подборка событий с указанным Id = {} не найдена", compId);
             throw new NotFoundException("Подборка событий с указанным ID не найдена");
         }
         compilationRepository.deleteById(compId);
+        log.debug("Удаление подборки событий прошло успешно");
     }
 
     private List<Event> loadingEvents(List<Long> listEventsId) {
+        log.debug("Подгрузка событий");
         if (listEventsId == null || listEventsId.isEmpty()) {
             log.info("В данном запросе отсутствуют события");
             return List.of();
@@ -137,6 +146,8 @@ public class CompilationServiceImpl implements CompilationService {
             log.warn("Не удалось найти все события. Ожидалось: {}, найдено: {}.", listEventsId.size(), events.size());
             throw new NotFoundException("Не все события найдены");
         }
+        log.debug("Событий успешно подгружены");
+
         return events;
     }
 }

@@ -1,6 +1,7 @@
 package ru.practicum.service.event.participation;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.participation.*;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventRequestServiceImpl implements EventRequestService {
 
     private final EventRequestRepository eventRequestRepository;
@@ -27,6 +29,7 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
+        log.info("Получение запросов на участие userId: {}, eventId: {}", userId, eventId);
         getUserOrThrow(userId);
         getOwnedEventOrThrow(userId, eventId);
         return eventRequestRepository.findAllByEventId(eventId).stream()
@@ -38,6 +41,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     @Transactional
     public EventRequestStatusUpdateResult updateRequestStatuses(Long userId, Long eventId,
                                                                 EventRequestStatusUpdateRequest updateRequest) {
+        log.info("Обновление статусов запросов к событию id: {}, {}", eventId, updateRequest);
         // Один из Postman тестов отправляет пустое тело и почему-то ожидает 409, хотя параметры тела обязательны
         if (updateRequest == null) {
             throw new ConflictException("Переданные параметры не должны быть пустыми");
@@ -47,12 +51,16 @@ public class EventRequestServiceImpl implements EventRequestService {
 
         List<Request> requests = eventRequestRepository.findAllByIdIn(updateRequest.requestIds());
         if (requests.size() != updateRequest.requestIds().size()) {
+            log.warn("Часть запросов не было найдено");
             throw new NotFoundException("Некоторые запросы не найдены.");
         }
         if (requests.stream().anyMatch(request -> !request.getEvent().getId().equals(eventId))) {
+            log.warn("Не все запросы относятся к событию id: {}", event.getId());
             throw new ConflictException("Запрос не относится к указанному событию.");
         }
-        if (requests.stream().anyMatch(request -> !ParticipationStatus.PENDING.name().equals(request.getStatus()))) {
+        if (requests.stream().anyMatch(request ->
+                !ParticipationStatus.PENDING.name().equals(request.getStatus()))) {
+            log.warn("Не все переданные запросы в статусе ожидания");
             throw new ConflictException("Запрос должен иметь статус PENDING.");
         }
 
@@ -65,8 +73,10 @@ public class EventRequestServiceImpl implements EventRequestService {
         } else {
             confirmRequests(event, requests, confirmed, rejected);
             eventRepository.save(event);
+            log.debug("Счетчик принятых запросов к событию id: {} успешно сохранен", event.getId());
         }
         eventRequestRepository.saveAll(requests);
+        log.debug("Новые статусы успешно сохранены");
 
         return new EventRequestStatusUpdateResult(
                 confirmed.stream().map(requestMapper::toDto).toList(),
@@ -75,6 +85,7 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     private void confirmRequests(Event event, List<Request> requests, List<Request> confirmed,
                                  List<Request> rejected) {
+        log.debug("Подтверждение запросов");
         int limit = event.getParticipantLimit();
         long confirmedCount = event.getConfirmedRequests();
         if (limit != 0 && confirmedCount >= limit) {
@@ -98,16 +109,21 @@ public class EventRequestServiceImpl implements EventRequestService {
             eventRequestRepository.saveAll(others);
             rejected.addAll(others);
         }
+        log.debug("Запросы успешно приняты");
     }
 
     private void getUserOrThrow(Long userId) {
         if (!userRepository.existsById(userId)) {
+            log.warn("Попытка найти несуществующего пользователя по id: {}", userId);
             throw new NotFoundException("Пользователя с id=" + userId + " не найдено");
         }
     }
 
     private Event getOwnedEventOrThrow(Long userId, Long eventId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Событие id=" + eventId + " не найдено"));
+                .orElseThrow(() -> {
+                    log.warn("Попытка найти несуществующее событие");
+                    return new NotFoundException("Событие id=" + eventId + " не найдено");
+                });
     }
 }

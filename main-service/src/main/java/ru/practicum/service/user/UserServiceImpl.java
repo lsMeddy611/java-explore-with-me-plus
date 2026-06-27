@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         emailExists(newUserRequest.email());
         User user = userMapper.toUser(newUserRequest);
         user = userRepository.save(user);
-        log.info("Пользователь успешно создан id= {}", user.getId());
+        log.debug("Пользователь успешно создан id= {}", user.getId());
 
         return userMapper.toDto(user);
     }
@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
             users = userRepository.findAll(predicate, pageable).getContent();
         }
 
+        log.debug("Пользователи успешно получены");
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
@@ -58,14 +59,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
+        log.info("Удаление пользователя: userId={}", userId);
         if (userRepository.existsById(userId)) {
             userRepository.deleteById(userId);
+            log.debug("Пользователь успешно удален: userId={}", userId);
         } else {
+            log.warn("Попытка удалить несуществующего пользователя: userId={}", userId);
             throw new NotFoundException("Пользователь с ID " + userId + " не найден");
         }
     }
 
     private Predicate buildPredicate(AdminUserFilter filter) {
+        log.info("Построение предиката для фильтрации пользователей");
         QUser qUser = QUser.user;
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -73,12 +78,16 @@ public class UserServiceImpl implements UserService {
             builder.and(qUser.id.in(filter.ids()));
         }
 
+        log.debug("Предикат успешно построен");
         return builder.getValue();
     }
 
     private void emailExists(String email) {
+        log.info("Проверка существования email: {}", email);
         if (userRepository.existsByEmail(email)) {
+            log.warn("Попытка создать пользователя с уже существующей почтой: {}", email);
             throw new ConflictException("Пользователь с почтой: " + email + " уже существует");
         }
+        log.debug("Email {} свободен", email);
     }
 }
