@@ -170,7 +170,7 @@ public class EventServiceImpl implements EventService {
         log.info("События успешно получены");
 
         return events.stream()
-                .map(event -> eventMapper.toShortDto(event, views))
+                .map(event -> eventMapper.toShortDto(event, views.getOrDefault(event.getId(), 0L)))
                 .sorted(sortByViews(filter)
                         ? Comparator.comparingLong(EventShortDto::views).reversed()
                         : Comparator.comparing(EventShortDto::eventDate))
@@ -182,7 +182,7 @@ public class EventServiceImpl implements EventService {
     private Predicate predicateFromFilter(PublicEventsFilter filter) {
         QEvent event = QEvent.event;
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(event.state.eq(String.valueOf(EventState.PENDING)));
+        builder.and(event.state.eq(String.valueOf(EventState.PUBLISHED)));
 
         if (filter.text() != null && !filter.text().isBlank()) {
             String searchText = "%" + filter.getNormalizedText() + "%";
