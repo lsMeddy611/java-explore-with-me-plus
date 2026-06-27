@@ -1,36 +1,51 @@
 package ru.practicum.service.event;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.EventState;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserRequest;
-import ru.practicum.dto.event.UserStateAction;
+import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.param_objects.AdminEventsFilter;
+import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
-import ru.practicum.model.User;
+import ru.practicum.model.*;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventServiceImpl implements EventService {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private JPAQueryFactory queryFactory;
+
+    @PostConstruct
+    public void init() {
+        queryFactory = new JPAQueryFactory(entityManager);
+    }
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
@@ -41,6 +56,19 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final StatsClient statsClient;
+
+    @Override
+    public EventFullDto getEventById(Long eventId) {
+        log.info("Получение ивента по id= {}", eventId);
+        Event event = getEventByIdOrThrow(eventId);
+        if (!event.getState().equals(EventState.PUBLISHED.name())) {
+            throw new NotFoundException("Ивент не опубликован");
+        }
+
+        Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
+        log.info("Ивент успешно получен");
+        return eventMapper.toFullDto(event, views);
+    }
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
@@ -86,9 +114,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId) {
+        log.info("Получение подробного описания ивента по его id= {}", eventId);
         getUserOrThrow(userId);
         Event event = getOwnedEventOrThrow(userId, eventId);
+        log.debug("Получение Views для ивента");
         Long views = getViews(List.of(event.getId())).getOrDefault(event.getId(), 0L);
+        log.debug("Views успешно получены");
+        log.info("Описание ивента успешно получено");
         return eventMapper.toFullDto(event, views);
     }
 
@@ -125,17 +157,78 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Map<Long, Long> getViews(List<Long> eventIds) {
-        if (eventIds.isEmpty()) {
-            return Map.of();
+    public List<EventShortDto> getPublishedEvents(PublicEventsFilter filter) {
+        log.info("Поиск опубликованных событий с фильтром: {}", filter);
+        Predicate predicate = predicateFromFilter(filter);
+        List<Event> events = queryFactory
+                .selectFrom(QEvent.event)
+                .leftJoin(QEvent.event.category).fetchJoin()
+                .leftJoin(QEvent.event.initiator).fetchJoin()
+                .where(predicate)
+                .fetch();
+        log.debug("Получение Views для опубликованных событий");
+        List<Long> eventsId = events.stream().map(Event::getId).toList();
+        log.debug("Views получены");
+        Map<Long, Long> views = getViews(eventsId);
+        log.info("События успешно получены");
+
+        return events.stream()
+                .map(event -> eventMapper.toShortDto(event, views.getOrDefault(event.getId(), 0L)))
+                .sorted(sortByViews(filter)
+                        ? Comparator.comparingLong(EventShortDto::views).reversed()
+                        : Comparator.comparing(EventShortDto::eventDate))
+                .skip(filter.from())
+                .limit(filter.size())
+                .toList();
+    }
+
+    private Predicate predicateFromFilter(PublicEventsFilter filter) {
+        QEvent event = QEvent.event;
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(event.state.eq(String.valueOf(EventState.PUBLISHED)));
+
+        if (filter.text() != null && !filter.text().isBlank()) {
+            String searchText = "%" + filter.getNormalizedText() + "%";
+            BooleanExpression textCondition = Expressions.stringTemplate(
+                            "LOWER({0})", event.annotation
+                    ).like(searchText)
+                    .or(Expressions.stringTemplate(
+                            "LOWER({0})", event.description
+                    ).like(searchText));
+            builder.and(textCondition);
         }
-        List<String> uris = eventIds.stream().map(id -> EVENT_URI_PREFIX + id).toList();
-        List<ViewStats> stats = statsClient.getHits(
-                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, true);
-        return stats.stream()
-                .collect(Collectors.toMap(
-                        stat -> Long.parseLong(stat.uri().substring(EVENT_URI_PREFIX.length())),
-                        ViewStats::hits));
+
+        if (filter.categories() != null && !filter.categories().isEmpty()) {
+            builder.and(event.category.id.in(filter.categories()));
+        }
+
+        if (filter.paid() != null) {
+            builder.and(event.paid.eq(filter.paid()));
+        }
+
+        LocalDateTime startDate = filter.getRangeStartDateTime();
+        LocalDateTime endDate = filter.getRangeEndDateTime();
+
+        if (startDate != null && endDate != null) {
+            if (endDate.isBefore(startDate)) {
+                throw new ValidationException("Начало события не может быть позже завершения события");
+            }
+            builder.and(event.eventDate.between(startDate, endDate));
+        } else if (startDate != null) {
+            builder.and(event.eventDate.after(startDate));
+        } else if (endDate != null) {
+            builder.and(event.eventDate.before(endDate));
+        }
+
+        if (filter.onlyAvailable()) {
+            builder.and(event.confirmedRequests.lt(event.participantLimit));
+        }
+
+        return builder.getValue();
+    }
+
+    private boolean sortByViews(PublicEventsFilter filter) {
+        return filter.sort() != null && filter.sort().equals(EventSort.VIEWS);
     }
 
     private User getUserOrThrow(Long userId) {
@@ -146,5 +239,106 @@ public class EventServiceImpl implements EventService {
     private Event getOwnedEventOrThrow(Long userId, Long eventId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Cобытие с id=" + eventId + " не найдено"));
+    }
+
+    @Override
+    public Map<Long, Long> getViews(List<Long> eventIds) {
+        if (eventIds.isEmpty()) {
+            return Map.of();
+        }
+        List<String> uris = eventIds.stream().map(id -> EVENT_URI_PREFIX + id).toList();
+
+        List<ViewStats> stats = statsClient.getHits(
+                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, true);
+        return stats.stream()
+                .collect(Collectors.toMap(
+                        stat -> Long.parseLong(stat.uri().substring(EVENT_URI_PREFIX.length())),
+                        ViewStats::hits));
+    }
+
+    @Override
+    public List<EventFullDto> getAdminEvents(AdminEventsFilter filter) {
+        log.info("Поис событий с фильтром: {}", filter);
+        QEvent event = QEvent.event;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!filter.users().isEmpty()) {
+            builder.and(event.initiator.id.in(filter.users()));
+        }
+        if (!filter.states().isEmpty()) {
+            builder.and(event.state.in(filter.states()));
+        }
+        if (!filter.categories().isEmpty()) {
+            builder.and(event.category.id.in(filter.categories()));
+        }
+
+        LocalDateTime startDate = filter.getRangeStartDateTime();
+        LocalDateTime endDate = filter.getRangeEndDateTime();
+        if (startDate != null) {
+            builder.and(event.eventDate.goe(startDate));
+        }
+        if (endDate != null) {
+            builder.and(event.eventDate.loe(endDate));
+        }
+
+        List<Event> events = queryFactory
+                .selectFrom(event)
+                .leftJoin(event.category).fetchJoin()
+                .leftJoin(event.initiator).fetchJoin()
+                .where(builder.getValue())
+                .offset(filter.from())
+                .limit(filter.size())
+                .fetch();
+
+        Map<Long, Long> views = getViews(events.stream().map(Event::getId).toList());
+        return events.stream()
+                .map(e -> eventMapper.toFullDto(e, views.getOrDefault(e.getId(), 0L)))
+                .toList();
+    }
+
+    @Override
+    public EventFullDto updateAdminEvent(Long eventId, UpdateEventAdminRequest request) {
+        Event event = getEventByIdOrThrow(eventId);
+
+        if (request.eventDate() != null && request.eventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new ConflictException(
+                    "Дата начала изменяемого события должна быть не ранее чем за час от даты публикации");
+        }
+
+        if (request.stateAction() != null) {
+            if (request.stateAction() == AdminStateAction.PUBLISH_EVENT) {
+                if (!EventState.PENDING.name().equals(event.getState())) {
+                    throw new ConflictException(
+                            "\n" +
+                                    "\n" +
+                                    "Невозможно опубликовать событие: " + event.getState());
+                }
+                event.setState(EventState.PUBLISHED.name());
+                event.setPublishedOn(LocalDateTime.now());
+            } else if (request.stateAction() == AdminStateAction.REJECT_EVENT) {
+                if (EventState.PUBLISHED.name().equals(event.getState())) {
+                    throw new ConflictException(
+                            "Невозможно отклонить событие, так как оно уже опубликовано.");
+                }
+                event.setState(EventState.CANCELED.name());
+            }
+        }
+
+        eventMapper.updateEntityFromAdminDto(request, event);
+        if (request.category() != null) {
+            Category category = categoryRepository.findById(request.category())
+                    .orElseThrow(() -> new NotFoundException(
+                            "Категория с id=" + request.category() + " не найдена"));
+            event.setCategory(category);
+        }
+
+        Event saved = eventRepository.save(event);
+        Long views = getViews(List.of(saved.getId())).getOrDefault(saved.getId(), 0L);
+        return eventMapper.toFullDto(saved, views);
+    }
+
+    private Event getEventByIdOrThrow(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id= " + eventId + " не существует"));
     }
 }

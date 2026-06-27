@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 public record AdminUserFilter(
-        @Min(0L)
+        @Min(value = 0L, message = "параметр from должен быть равен или больше 0")
         Integer from,
-        @Min(1)
+        @Min(value = 1, message =  "параметр size должен быть положительным")
         Integer size,
         List<Long> ids
 ) {

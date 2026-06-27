@@ -11,8 +11,7 @@ public record CompilationDto(
         @Positive(message = "ID подборки должен быть положительным числом")
         Long id,
 
-        @NotNull(message = "Флаг закрепления подборки не должен быть null")
-        Boolean pinned,
+        boolean pinned,
 
         @NotBlank(message = "Заголовок подборки не должен быть пустым")
         String title,

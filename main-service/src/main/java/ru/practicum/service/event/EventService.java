@@ -1,14 +1,14 @@
 package ru.practicum.service.event;
 
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.param_objects.AdminEventsFilter;
+import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 
 import java.util.List;
 import java.util.Map;
 
 public interface EventService {
+    EventFullDto getEventById(Long eventId);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 
@@ -17,6 +17,12 @@ public interface EventService {
     EventFullDto getUserEvent(Long userId, Long eventId);
 
     EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
+
+    List<EventShortDto> getPublishedEvents(PublicEventsFilter filter);
+
+    List<EventFullDto> getAdminEvents(AdminEventsFilter filter);
+
+    EventFullDto updateAdminEvent(Long eventId, UpdateEventAdminRequest request);
 
     Map<Long, Long> getViews(List<Long> eventIds);
 }

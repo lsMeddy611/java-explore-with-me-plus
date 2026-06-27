@@ -1,20 +1,16 @@
-package ru.practicum.service.participation;
+package ru.practicum.service.event.participation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.participation.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.participation.EventRequestStatusUpdateResult;
-import ru.practicum.dto.participation.ParticipationRequestDto;
-import ru.practicum.dto.participation.ParticipationStatus;
-import ru.practicum.dto.participation.RequestStatusAction;
+import ru.practicum.dto.participation.*;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.mapper.participation.RequestMapper;
+import ru.practicum.mapper.request.RequestMapper;
 import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 import ru.practicum.repository.event.EventRepository;
-import ru.practicum.repository.participation.RequestRepository;
+import ru.practicum.repository.event.participation.EventRequestRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -22,9 +18,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RequestServiceImpl implements RequestService {
+public class EventRequestServiceImpl implements EventRequestService {
 
-    private final RequestRepository requestRepository;
+    private final EventRequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RequestMapper requestMapper;

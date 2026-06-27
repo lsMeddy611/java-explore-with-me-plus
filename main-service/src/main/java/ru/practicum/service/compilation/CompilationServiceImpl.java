@@ -8,7 +8,6 @@ import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.compilation.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
@@ -31,9 +30,10 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
+        log.info("Получение компиляции pinned: {}, from: {}, size: {}", pinned, from, size);
         List<Long> compilationIds = compilationRepository.getCompilationIds(pinned, from, size);
         if (compilationIds.isEmpty()) {
-            log.info("Не найдено ни одной подборки событий");
+            log.debug("Не найдено ни одной подборки событий");
             return List.of();
         }
 
@@ -45,7 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .collect(Collectors.toSet());
 
         Map<Long, Long> viewsMap = eventService.getViews(new ArrayList<>(eventIds));
-        log.info("Получено {} подборок событий", compilations.size());
+        log.debug("Получено {} подборок событий", compilations.size());
 
         return compilations.stream()
                 .map(compilation -> compilationMapper.toDto(compilation, viewsMap))
