@@ -1,10 +1,8 @@
 package ru.practicum.mapper.event;
 
 import org.mapstruct.*;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.location.Location;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.mapper.user.UserMapper;
@@ -31,6 +29,12 @@ public interface EventMapper {
     @Mapping(target = "lon", source = "location.lon")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateEventUserRequest dto, @MappingTarget Event event);
+
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "lat", source = "location.lat")
+    @Mapping(target = "lon", source = "location.lon")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromAdminDto(UpdateEventAdminRequest dto, @MappingTarget Event event);
 
     @Mapping(target = "location", expression = "java(toLocation(event))")
     EventFullDto toFullDto(Event event, Long views);
