@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void emailExists(String email) {
-        if(userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw new ConflictException("Пользователь с почтой: " + email + " уже существует");
         }
     }

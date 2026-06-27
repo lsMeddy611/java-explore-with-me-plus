@@ -11,7 +11,6 @@ import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.event.participation.EventRequestRepository;
-import ru.practicum.repository.request.RequestRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.util.ArrayList;
