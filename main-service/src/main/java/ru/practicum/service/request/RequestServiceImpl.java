@@ -49,14 +49,13 @@ public class RequestServiceImpl implements RequestService {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
-        requestorEqualsEventOwner(userId, event);
-        eventNotPublished(event);
-        participantsLimit(event);
+        validateRequest(userId, event);
         Request request = Request.builder()
                 .requester(user)
                 .event(event)
                 .created(LocalDateTime.now())
-                .status(ParticipationStatus.PENDING.name())
+                .status(event.getParticipantLimit() == 0 ? ParticipationStatus.CONFIRMED.name() :
+                        ParticipationStatus.PENDING.name())
                 .build();
         Request saved = requestRepository.save(request);
 
@@ -91,6 +90,15 @@ public class RequestServiceImpl implements RequestService {
     private void participantsLimit(Event event) {
         if (requestRepository.countByEventId(event.getId()) >= event.getParticipantLimit()) {
             throw new ConflictException("В событии id: " + event.getId() + " больше нет свободных мест");
+        }
+    }
+
+    private void validateRequest(Long userId, Event event) {
+        requestorEqualsEventOwner(userId, event);
+        eventNotPublished(event);
+        // Значение 0 - это отсутствие лимита, такая бизнес логика
+        if (event.getParticipantLimit() > 0) {
+            participantsLimit(event);
         }
     }
 }

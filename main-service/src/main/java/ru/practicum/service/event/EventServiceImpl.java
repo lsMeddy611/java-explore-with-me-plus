@@ -64,9 +64,12 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventById(Long eventId) {
         log.info("Получение ивента по id= {}", eventId);
         Event event = getEventByIdOrThrow(eventId);
+        if (!event.getState().equals(EventState.PUBLISHED.name())) {
+            throw new NotFoundException("Ивент не опубликован");
+        }
+
         Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
         log.info("Ивент успешно получен");
-
         return eventMapper.toFullDto(event, views);
     }
 
@@ -225,6 +228,9 @@ public class EventServiceImpl implements EventService {
         LocalDateTime endDate = filter.getRangeEndDateTime();
 
         if (startDate != null && endDate != null) {
+            if (endDate.isBefore(startDate)) {
+                throw new ValidationException("Начало события не может быть позже завершения события");
+            }
             builder.and(event.eventDate.between(startDate, endDate));
         } else if (startDate != null) {
             builder.and(event.eventDate.after(startDate));
@@ -259,8 +265,9 @@ public class EventServiceImpl implements EventService {
             return Map.of();
         }
         List<String> uris = eventIds.stream().map(id -> EVENT_URI_PREFIX + id).toList();
+
         List<ViewStats> stats = statsClient.getHits(
-                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, false);
+                STATS_RANGE_START.format(DATE_FORMATTER), LocalDateTime.now().format(DATE_FORMATTER), uris, true);
         return stats.stream()
                 .collect(Collectors.toMap(
                         stat -> Long.parseLong(stat.uri().substring(EVENT_URI_PREFIX.length())),

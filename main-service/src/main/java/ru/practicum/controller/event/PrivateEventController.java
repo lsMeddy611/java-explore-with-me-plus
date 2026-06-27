@@ -28,8 +28,8 @@ public class PrivateEventController {
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getUserEvents(@PathVariable Long userId,
-                                        @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-                                        @RequestParam(defaultValue = "10") @Positive int size) {
+                                                             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                                             @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("GET /users/{}/events: from={}, size={}", userId, from, size);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(eventService.getUserEvents(userId, from, size));
@@ -51,7 +51,7 @@ public class PrivateEventController {
 
     @PatchMapping("/{eventId}")
     public ResponseEntity<EventFullDto> updateUserEvent(@PathVariable Long userId, @PathVariable Long eventId,
-                                        @Valid @RequestBody UpdateEventUserRequest updateRequest) {
+                                                        @Valid @RequestBody UpdateEventUserRequest updateRequest) {
         log.info("PATCH /users/{}/events/{}: {}", userId, eventId, updateRequest);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(eventService.updateUserEvent(userId, eventId, updateRequest));
