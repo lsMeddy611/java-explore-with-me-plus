@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -73,6 +74,14 @@ public class ErrorHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ApiError(stackTrace, errorMessage, "Ошибка валидации данных", "400"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
+        String stackTrace = getStackTrace(HttpStatus.CONFLICT, e);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new ApiError(stackTrace, e.getMessage(), "Конфликт данных", "409"));
     }
 
     private String getStackTrace(HttpStatus httpStatus, Exception e) {

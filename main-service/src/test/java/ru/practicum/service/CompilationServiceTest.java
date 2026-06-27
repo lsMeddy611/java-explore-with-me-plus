@@ -18,7 +18,7 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.compilation.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
-import ru.practicum.repository.CompilationRepository;
+import ru.practicum.repository.compilation.CompilationRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.service.compilation.CompilationServiceImpl;
 import ru.practicum.service.event.EventService;
@@ -168,8 +168,8 @@ public class CompilationServiceTest {
         when(compilationRepository.getCompilations(eventIds))
                 .thenReturn(List.of(comp));
 
-        when(eventService.getViews(Collections.emptyList())).
-                thenReturn(Collections.emptyMap());
+        when(eventService.getViews(Collections.emptyList()))
+                .thenReturn(Collections.emptyMap());
 
         when(compilationMapper.toDto(comp,Collections.emptyMap()))
                 .thenReturn(compDto);
@@ -194,8 +194,8 @@ public class CompilationServiceTest {
         when(eventService.getViews(anyList()))
                 .thenReturn(viewsMap);
 
-        when(compilationMapper.toDto(compilation, viewsMap)).
-                thenReturn(compilationDto);
+        when(compilationMapper.toDto(compilation, viewsMap))
+                .thenReturn(compilationDto);
 
         CompilationDto result = compilationService.getCompilation(10L);
 
@@ -248,8 +248,8 @@ public class CompilationServiceTest {
         when(eventService.getViews(Collections.emptyList()))
                 .thenReturn(Collections.emptyMap());
 
-        when(compilationMapper.toDto(comp, Collections.emptyMap())).
-                thenReturn(compDto);
+        when(compilationMapper.toDto(comp, Collections.emptyMap()))
+                .thenReturn(compDto);
 
         CompilationDto result = compilationService.getCompilation(5L);
 

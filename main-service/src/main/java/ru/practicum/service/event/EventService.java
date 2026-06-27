@@ -1,5 +1,6 @@
 package ru.practicum.service.event;
 
+import ru.practicum.EndpointHitInfo;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
@@ -18,7 +19,7 @@ public interface EventService {
 
     EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
 
-    List<EventShortDto> getPublishedEvents(PublicEventsFilter filter);
+    List<EventShortDto> getPublishedEvents(PublicEventsFilter filter, EndpointHitInfo endpointHitInfo);
 
     List<EventFullDto> getAdminEvents(AdminEventsFilter filter);
 

@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import ru.practicum.EndpointHit;
+import ru.practicum.EndpointHitInfo;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
 import ru.practicum.dto.event.*;
@@ -157,7 +160,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getPublishedEvents(PublicEventsFilter filter) {
+    public List<EventShortDto> getPublishedEvents(PublicEventsFilter filter, EndpointHitInfo endpointHitInfo) {
         log.info("Поиск опубликованных событий с фильтром: {}", filter);
         Predicate predicate = predicateFromFilter(filter);
         List<Event> events = queryFactory
@@ -168,6 +171,21 @@ public class EventServiceImpl implements EventService {
                 .fetch();
         log.debug("Получение Views для опубликованных событий");
         List<Long> eventsId = events.stream().map(Event::getId).toList();
+
+        for (Long eventId : eventsId) {
+            try {
+                statsClient.saveHit(new EndpointHit(
+                        null,
+                        endpointHitInfo.app(),
+                        endpointHitInfo.uri() + "/" + eventId,
+                        endpointHitInfo.ip(),
+                        endpointHitInfo.timestamp()
+                ));
+            } catch (RestClientException e) {
+                log.error("Не удалось сохранить хит для события id={}: {}", eventId, e.getMessage());
+            }
+        }
+
         log.debug("Views получены");
         Map<Long, Long> views = getViews(eventsId);
         log.info("События успешно получены");

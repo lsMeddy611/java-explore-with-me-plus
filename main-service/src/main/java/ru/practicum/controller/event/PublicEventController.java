@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import ru.practicum.EndpointHit;
+import ru.practicum.EndpointHitInfo;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
@@ -34,9 +35,16 @@ public class PublicEventController {
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @GetMapping
-    public ResponseEntity<List<EventShortDto>> getEventsByFilter(@ModelAttribute @Valid PublicEventsFilter filter) {
+    public ResponseEntity<List<EventShortDto>> getEventsByFilter(@ModelAttribute @Valid PublicEventsFilter filter,
+                                                                 HttpServletRequest request) {
         log.info("/GET /events");
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getPublishedEvents(filter));
+        String ip = request.getRemoteAddr();
+        String uri = request.getRequestURI();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+        String createdOn = LocalDateTime.now().format(formatter);
+        EndpointHitInfo endpointHitInfo = new EndpointHitInfo(APP_NAME, uri, ip, createdOn);
+
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getPublishedEvents(filter, endpointHitInfo));
     }
 
     @GetMapping("/{eventId}")
