@@ -8,6 +8,7 @@ import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.compilation.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
@@ -69,12 +70,14 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
-        Compilation compilation = compilationMapper.toEntity(newCompilationDto);
+        List<Event> events = loadingEvents(newCompilationDto.events());
+        Compilation compilation = compilationMapper.toEntity(newCompilationDto, events);
         Compilation savedCompilation = compilationRepository.save(compilation);
 
         Set<Long> eventIds = savedCompilation.getEvents().stream()
                 .map(Event::getId)
                 .collect(Collectors.toSet());
+
         Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
         log.info("Создана новая подборка событий id = {}", savedCompilation.getId());
         return compilationMapper.toDto(savedCompilation, views);
@@ -97,22 +100,18 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         if (updateCompilationRequest.events() != null) {
-            List<Event> updatedEvents = eventRepository.findAllById(updateCompilationRequest.events());
-            if (updatedEvents.size() != updateCompilationRequest.events().size()) {
-                log.warn("При обновлении подборки Id = {} не найдены события из запроса: {}", compId,
-                        updateCompilationRequest.events());
-                throw new NotFoundException("Одно или несколько событий не найдены");
-            }
+            List<Event> updatedEvents = loadingEvents(updateCompilationRequest.events());
             compilation.setEvents(updatedEvents);
+
             eventIds = updatedEvents.stream()
                     .map(Event::getId)
                     .collect(Collectors.toSet());
         }
 
-        Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
-
         Compilation updatedCompilation = compilationRepository.save(compilation);
         log.info("Обновлена подборка событий id = {}", updatedCompilation.getId());
+
+        Map<Long, Long> views = eventService.getViews(new ArrayList<>(eventIds));
         return compilationMapper.toDto(updatedCompilation, views);
     }
 
@@ -124,6 +123,21 @@ public class CompilationServiceImpl implements CompilationService {
             throw new NotFoundException("Подборка событий с указанным ID не найдена");
         }
         compilationRepository.deleteById(compId);
+    }
+
+    private List<Event> loadingEvents(List<Long> listEventsId) {
+        if (listEventsId == null || listEventsId.isEmpty()) {
+            log.info("В данном запросе отсутствуют события");
+            return List.of();
+        }
+
+        List<Event> events = eventRepository.findAllById(listEventsId);
+
+        if (listEventsId.size() != events.size()) {
+            log.warn("Не удалось найти все события. Ожидалось: {}, найдено: {}.", listEventsId.size(), events.size());
+            throw new NotFoundException("Не все события найдены");
+        }
+        return events;
     }
 }
 
