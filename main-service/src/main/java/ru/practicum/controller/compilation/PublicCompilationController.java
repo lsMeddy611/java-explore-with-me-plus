@@ -22,7 +22,7 @@ public class PublicCompilationController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public ResponseEntity<List<CompilationDto>> getCompilations(@RequestParam Boolean pinned,
+    public ResponseEntity<List<CompilationDto>> getCompilations(@RequestParam(defaultValue = "false") Boolean pinned,
                                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("GET /compilations");

@@ -7,6 +7,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -29,6 +30,13 @@ public class ErrorHandler {
         String stackTrace = getStackTrace(HttpStatus.CONFLICT, e);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ApiError(stackTrace, e.getMessage(), "Конфликт данных", "409"));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiError> handleMissingParam(final MissingServletRequestParameterException e) {
+        String stackTrace = getStackTrace(HttpStatus.BAD_REQUEST, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiError(stackTrace, e.getMessage(), "Отсутствует обязательный параметр", "400"));
     }
 
     @ExceptionHandler(Exception.class)
