@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.compilation;
 
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +20,11 @@ import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 import ru.practicum.repository.compilation.CompilationRepository;
 import ru.practicum.repository.event.EventRepository;
-import ru.practicum.service.compilation.CompilationServiceImpl;
 import ru.practicum.service.event.EventService;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -84,7 +82,7 @@ public class CompilationServiceTest {
                 "Title",
                 100L
         );
-        compilationDto = new CompilationDto(10L,true,"Test Compilation", List.of(shortEvent));
+        compilationDto = new CompilationDto(10L, true, "Test Compilation", List.of(shortEvent));
         newCompilationDto = new NewCompilationDto("New", true, List.of(1L, 2L));
         updateRequest = new UpdateCompilationRequest("Updated", false, List.of(1L));
     }
@@ -125,7 +123,7 @@ public class CompilationServiceTest {
         when(eventService.getViews(anyList()))
                 .thenReturn(viewsMap);
 
-        when(compilationMapper.toDto(compilation,viewsMap))
+        when(compilationMapper.toDto(compilation, viewsMap))
                 .thenReturn(compilationDto);
 
         List<CompilationDto> result = compilationService.getCompilations(true, from, size);
@@ -158,7 +156,7 @@ public class CompilationServiceTest {
                 .build();
 
         CompilationDto compDto =
-                new CompilationDto(10L,true,"Test Compilation", List.of());
+                new CompilationDto(10L, true, "Test Compilation", List.of());
 
         eventIds = List.of(10L, 20L);
 
@@ -171,7 +169,7 @@ public class CompilationServiceTest {
         when(eventService.getViews(Collections.emptyList()))
                 .thenReturn(Collections.emptyMap());
 
-        when(compilationMapper.toDto(comp,Collections.emptyMap()))
+        when(compilationMapper.toDto(comp, Collections.emptyMap()))
                 .thenReturn(compDto);
 
         List<CompilationDto> result = compilationService.getCompilations(true, 10, 5);
@@ -179,7 +177,7 @@ public class CompilationServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().events()).isEmpty();
 
-        verify(compilationMapper).toDto(comp,Collections.emptyMap());
+        verify(compilationMapper).toDto(comp, Collections.emptyMap());
     }
 
     @Test
@@ -240,7 +238,7 @@ public class CompilationServiceTest {
                 .build();
 
         CompilationDto compDto =
-                new CompilationDto(10L,true,"Test Compilation", List.of());
+                new CompilationDto(10L, true, "Test Compilation", List.of());
 
         when(compilationRepository.findById(anyLong()))
                 .thenReturn(Optional.of(comp));
@@ -255,14 +253,14 @@ public class CompilationServiceTest {
 
         assertThat(result.events()).isEmpty();
 
-        verify(compilationMapper).toDto(comp,Collections.emptyMap());
+        verify(compilationMapper).toDto(comp, Collections.emptyMap());
     }
 
     @Test
     void shouldCreateCompilationWhenValidDataProvided() {
         viewsMap = new HashMap<>();
         viewsMap.put(1L, 100L);
-        viewsMap.put(2L, 200L);;
+        viewsMap.put(2L, 200L);
 
         when(eventRepository.findAllById(anyList()))
                 .thenReturn(events);
@@ -288,10 +286,10 @@ public class CompilationServiceTest {
                 .collect(Collectors.toList());
 
         verify(eventRepository, times(1)).findAllById(anyList());
-        verify(compilationMapper,  times(1)).toEntity(newCompilationDto, events);
-        verify(compilationRepository,  times(1)).save(compilation);
-        verify(eventService,  times(1)).getViews(eventIds);
-        verify(compilationMapper,  times(1)).toDto(compilation, viewsMap);
+        verify(compilationMapper, times(1)).toEntity(newCompilationDto, events);
+        verify(compilationRepository, times(1)).save(compilation);
+        verify(eventService, times(1)).getViews(eventIds);
+        verify(compilationMapper, times(1)).toDto(compilation, viewsMap);
     }
 
     @Test
@@ -306,7 +304,7 @@ public class CompilationServiceTest {
                 .build();
 
         CompilationDto compDto =
-                new CompilationDto(10L,true,"Test Compilation", List.of());
+                new CompilationDto(10L, true, "Test Compilation", List.of());
 
         when(compilationMapper.toEntity(newCompDto, Collections.emptyList()))
                 .thenReturn(comp);
@@ -324,7 +322,7 @@ public class CompilationServiceTest {
 
         assertThat(result.events()).isEmpty();
 
-        verify(compilationMapper).toDto(comp,Collections.emptyMap());
+        verify(compilationMapper).toDto(comp, Collections.emptyMap());
         verify(eventRepository, never()).findAllById(anyList());
     }
 
