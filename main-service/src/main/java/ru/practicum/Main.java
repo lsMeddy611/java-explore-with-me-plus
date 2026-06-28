@@ -20,7 +20,6 @@ public class Main {
         SpringApplication.run(Main.class, args);
     }
 
-    // Временный вариант, чтобы просто проверить работает ли корректно клиент статистики в главном сервисе
     @PostMapping("/hit")
     public ResponseEntity<EndpointHit> saveHit(@RequestBody EndpointHit hit) {
         try {
