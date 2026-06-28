@@ -28,20 +28,26 @@ public interface StatsRepository extends JpaRepository<EndpointHitEntity, Long> 
     @Query(value = "SELECT e.app, e.uri, COUNT(*) as hits " +
             "FROM endpoint_hits e " +
             "WHERE e.timestamp BETWEEN :start AND :end " +
-            "AND e.uri IN :uris " +
+            "AND EXISTS (" +
+            "   SELECT 1 FROM UNNEST(CAST(:uris AS text[])) u " +
+            "   WHERE e.uri LIKE CONCAT('%', u, '%')" +
+            ") " +
             "GROUP BY e.app, e.uri " +
-            "ORDER BY COUNT(*) DESC ", nativeQuery = true)
+            "ORDER BY COUNT(*) DESC", nativeQuery = true)
     List<Object[]> findStatsWithUris(@Param("start") LocalDateTime start,
                                      @Param("end") LocalDateTime end,
-                                     @Param("uris") List<String> uris);
+                                     @Param("uris") String[] uris);
 
     @Query(value = "SELECT e.app, e.uri, COUNT(DISTINCT e.ip) as hits " +
             "FROM endpoint_hits e " +
             "WHERE e.timestamp BETWEEN :start AND :end " +
-            "AND e.uri IN :uris " +
+            "AND EXISTS (" +
+            "   SELECT 1 FROM UNNEST(CAST(:uris AS text[])) u " +
+            "   WHERE e.uri LIKE CONCAT('%', u, '%')" +
+            ") " +
             "GROUP BY e.app, e.uri " +
             "ORDER BY COUNT(DISTINCT e.ip) DESC ", nativeQuery = true)
     List<Object[]> findUniqueStatsWithUris(@Param("start") LocalDateTime start,
                                            @Param("end") LocalDateTime end,
-                                           @Param("uris") List<String> uris);
+                                           @Param("uris") String[] uris);
 }
