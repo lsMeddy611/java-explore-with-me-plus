@@ -6,6 +6,11 @@ services:
       - "8080:8080"
     depends_on:
       - ewm-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-db
+      - SPRING_DATASOURCE_USERNAME=localAdmin
+      - SPRING_DATASOURCE_PASSWORD=localadmin
+      - TZ=UTC
 
   ewm-db:
     image: postgres:16.1
@@ -13,10 +18,12 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_DB=main-db
+      - POSTGRES_DB=ewm-db
       - POSTGRES_USER=localAdmin
       - POSTGRES_PASSWORD=localadmin
       - TZ=UTC
+    volumes:
+      - ./main-service/src/main/resources:/docker-entrypoint-initdb.d
 
   stats-server:
     build: ./stats-service/stats-server
@@ -29,6 +36,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats-db
       - SPRING_DATASOURCE_USERNAME=localAdmin
       - SPRING_DATASOURCE_PASSWORD=localadmin
+      - TZ=UTC
 
   stats-db:
     image: postgres:16.1

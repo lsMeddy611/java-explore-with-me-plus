@@ -49,11 +49,12 @@ public class StatsServiceImpl implements StatsService {
         LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
         LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
         validateDates(startDateTime, endDateTime);
+        String[] urisArray = uris.toArray(String[]::new);
 
         List<Object[]> results;
-        if (uris != null && !uris.isEmpty()) {
-            results = unique ? statsRepository.findUniqueStatsWithUris(startDateTime, endDateTime, uris)
-                    : statsRepository.findStatsWithUris(startDateTime, endDateTime, uris);
+        if (!uris.isEmpty()) {
+            results = unique ? statsRepository.findUniqueStatsWithUris(startDateTime, endDateTime, urisArray)
+                    : statsRepository.findStatsWithUris(startDateTime, endDateTime, urisArray);
         } else {
             results = unique ? statsRepository.findUniqueStats(startDateTime, endDateTime)
                     : statsRepository.findStats(startDateTime, endDateTime);
