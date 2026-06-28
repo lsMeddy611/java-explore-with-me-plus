@@ -19,27 +19,4 @@ public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }
-
-    // Временный вариант, чтобы просто проверить работает ли корректно клиент статистики в главном сервисе
-    @PostMapping("/hit")
-    public ResponseEntity<EndpointHit> saveHit(@RequestBody EndpointHit hit) {
-        try {
-            return ResponseEntity.ok(statsClient.saveHit(hit));
-        } catch (RestClientException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/stats")
-    public ResponseEntity<List<ViewStats>> getViewStats(
-            @RequestParam String start,
-            @RequestParam String end,
-            @RequestParam(required = false) List<String> uris,
-            @RequestParam(required = false, defaultValue = "false") Boolean unique) {
-        try {
-            return ResponseEntity.ok(statsClient.getHits(start, end, uris, unique));
-        } catch (RestClientException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
 }
