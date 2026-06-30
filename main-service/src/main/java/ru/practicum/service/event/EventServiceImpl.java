@@ -11,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.practicum.EndpointHit;
@@ -19,6 +20,7 @@ import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -128,7 +130,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getUserEvent(Long userId, Long eventId) {
+    public EventFullDto getUserEvent(Long userId, Long eventId,  Double lat, Double lot) {
         log.info("Получение подробного описания ивента по его id= {}", eventId);
         getUserOrThrow(userId);
         Event event = getOwnedEventOrThrow(userId, eventId);
@@ -137,6 +139,24 @@ public class EventServiceImpl implements EventService {
         log.debug("Views успешно получены");
         log.debug("Описание ивента успешно получено");
         return eventMapper.toFullDto(event, views);
+    }
+
+    @Override
+    public List<EventShortDto> getUserEventsByCoordinates(Long userId, PrivateEventsFilter filter, Integer page,
+                                                          Integer size) {
+        getUserOrThrow(userId);
+        log.info("Получение ближайших событий пользователя userId={} по радиусу radiusMeters= {}м и по координатам:" +
+                " lat= {}, lon= {}" , userId, filter.radiusMeters(), filter.lat(), filter.lon());
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<EventShortDto> eventsNearby = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
+                filter.lon(), pageable);
+
+        Map<Long, Long> viewsMap = getViews(eventsNearby.stream().map(EventShortDto::id).toList());
+        log.debug("События успешно получены");
+
+        return eventsNearby.stream().map(e -> e.withViews(viewsMap.get(e.id())))
+                .collect(Collectors.toList());
     }
 
     @Override

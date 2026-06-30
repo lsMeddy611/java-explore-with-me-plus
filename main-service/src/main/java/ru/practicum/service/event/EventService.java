@@ -3,6 +3,7 @@ package ru.practicum.service.event;
 import ru.practicum.EndpointHitInfo;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 
 import java.util.List;
@@ -15,7 +16,9 @@ public interface EventService {
 
     EventFullDto createEvent(Long userId, NewEventDto newEventDto);
 
-    EventFullDto getUserEvent(Long userId, Long eventId);
+    EventFullDto getUserEvent(Long userId, Long eventId, Double lat, Double lot);
+
+    List<EventShortDto> getUserEventsByCoordinates(Long userId, PrivateEventsFilter filter, Integer page, Integer size);
 
     EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
 

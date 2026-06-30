@@ -37,5 +37,15 @@ public record EventShortDto(
         String title,
 
         @PositiveOrZero(message = "Количество просмотров не может быть отрицательным")
-        Long views
-) {}
+        Long views,
+
+        @Positive(message = "Дистанция не должен быть null")
+        Double distance
+) {
+    public EventShortDto withViews(Long newViews) {
+        return new EventShortDto(
+                annotation, category, confirmedRequests, eventDate,
+                id, initiator, paid, title, newViews, distance
+        );
+    }
+}
