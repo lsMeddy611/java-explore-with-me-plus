@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface EventService {
-    EventFullDto getEventById(Long eventId);
+    EventFullDto getEventById(Long eventId, Double lat, Double lon);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 
     EventFullDto createEvent(Long userId, NewEventDto newEventDto);
 
-    EventFullDto getUserEvent(Long userId, Long eventId, Double lat, Double lot);
+    EventFullDto getUserEvent(Long userId, Long eventId);
 
     List<EventShortDto> getUserEventsByCoordinates(Long userId, PrivateEventsFilter filter, Integer page, Integer size);
 

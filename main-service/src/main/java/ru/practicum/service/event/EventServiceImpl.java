@@ -53,7 +53,7 @@ public class EventServiceImpl implements EventService {
         queryFactory = new JPAQueryFactory(entityManager);
         log.debug("JPAQueryFactory успешно инициализирован");
     }
-
+    private static final double EARTH_RADIUS_METERS = 6371000.0;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
     private static final String EVENT_URI_PREFIX = "/events/";
@@ -65,17 +65,23 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
 
     @Override
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, Double lat, Double lon) {
         log.info("Получение ивента по id= {}", eventId);
         Event event = getEventByIdOrThrow(eventId);
+
         if (!event.getState().equals(EventState.PUBLISHED.name())) {
             log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
             throw new NotFoundException("Ивент не опубликован");
         }
-
         Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
         log.debug("Ивент успешно получен");
-        return eventMapper.toFullDto(event, views);
+
+        Double distance = null;
+        if (lat != null && lon != null) {
+            distance = calculateDistance(lat, lon, event.getLat(), event.getLon());
+            log.debug("Дистанция до ивента вычислена: {} м", distance);
+        }
+        return eventMapper.toFullDto(event, views).withDistance(distance);
     }
 
     @Override
@@ -130,7 +136,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getUserEvent(Long userId, Long eventId,  Double lat, Double lot) {
+    public EventFullDto getUserEvent(Long userId, Long eventId) {
         log.info("Получение подробного описания ивента по его id= {}", eventId);
         getUserOrThrow(userId);
         Event event = getOwnedEventOrThrow(userId, eventId);
@@ -424,5 +430,20 @@ public class EventServiceImpl implements EventService {
                     log.warn("Событие с id={} не существует", eventId);
                     return new NotFoundException("Событие с id= " + eventId + " не существует");
                 });
+    }
+
+    private Double calculateDistance(Double latUser, Double lonUser, Double latEvent, Double lonEvent) {
+        double radUser = Math.toRadians(latUser);
+        double radEvent = Math.toRadians(latEvent);
+
+        double radTheta = Math.toRadians(lonUser - lonEvent);
+
+        double distance = Math.sin(radUser) * Math.sin(radEvent) + Math.cos(radUser)
+                * Math.cos(radEvent) * Math.cos(radTheta);
+
+        if (distance > 1) {
+            distance = 1;
+        }
+        return distance = Math.acos(distance) * EARTH_RADIUS_METERS;
     }
 }

@@ -2,7 +2,7 @@ package ru.practicum.controller.event;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,7 +44,9 @@ public class PublicEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getEventById(@PositiveOrZero @PathVariable("eventId") Long eventId,
+    public ResponseEntity<EventFullDto> getEventById(@Positive @PathVariable("eventId") Long eventId,
+                                                     @RequestParam(required = false) @Min(-90) @Max(90) Double lat,
+                                                     @RequestParam(required = false) @Min(-180) @Max(180) Double lon,
                                                      HttpServletRequest request) {
         log.info("GET /events/{}", eventId);
         EndpointHit endpointHit = createEndpointHit(request);
@@ -55,7 +57,7 @@ public class PublicEventController {
             log.error("Не удалось сохранить информацию о статистике endpointHit= {}", endpointHit);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(eventId));
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(eventId, lat, lon));
     }
 
     private EndpointHit createEndpointHit(HttpServletRequest request) {

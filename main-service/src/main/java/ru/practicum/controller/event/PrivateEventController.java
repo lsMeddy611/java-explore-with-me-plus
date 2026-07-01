@@ -1,6 +1,8 @@
 package ru.practicum.controller.event;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +46,9 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getUserEvent(@PathVariable Long userId, @PathVariable Long eventId,
-                                                     @RequestParam Double lat, @RequestParam Double lot) {
+    public ResponseEntity<EventFullDto> getUserEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(eventService.getUserEvent(userId, eventId, lat, lot));
+                .body(eventService.getUserEvent(userId, eventId));
     }
 
     @GetMapping("/nearby")
