@@ -1,0 +1,1327 @@
+{
+  "info": {
+    "_postman_id": "907d49a8-63db-488a-96b1-396a2cc005b0",
+    "name": "java-explore-with-me",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48975293",
+    "_collection_link": "https://go.postman.co/collection/48975293-907d49a8-63db-488a-96b1-396a2cc005b0?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create resources",
+      "item": [
+        {
+          "name": "Create user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"userId\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Владлен Макарович\",\n    \"email\": \"MVladlen@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"categoryId1\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"Праздники\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"categoryId2\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Дни рождения\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 1 Category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId1\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"annotation\": \"Праздник сбора урожая\",\r\n    \"category\": {{categoryId1}},\r\n    \"description\": \"Хватит смотреть на урожай - пора его собирать! Будет вкусно, шумно и по-домашнему тепло!\",\r\n    \"eventDate\": \"2026-08-01 10:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7558,\r\n        \"lon\": 37.6173\r\n    },\r\n    \"paid\": false,\r\n    \"participantLimit\": 100,\r\n    \"requestModeration\": true,\r\n    \"title\": \"Картошка-fest\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 2 Category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId2\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"annotation\": \"Назад в будущее под открытым небом. Летний показ в честь годовщины выхода в прокат\",\r\n    \"category\": {{categoryId1}},\r\n    \"description\": \"Вечер под открытым небом: ДеЛориан, летающая доска и машина времени на большом экране. Будет фотозона в стиле 80-х, тематический коктейль и розыгрыш призов. Начало в 20:00 — не опаздывайте, Марти!\",\r\n    \"eventDate\": \"2026-07-03 20:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7730,\r\n        \"lon\": 37.6330\r\n    },\r\n    \"paid\": false,\r\n    \"participantLimit\": 50,\r\n    \"requestModeration\": true,\r\n    \"title\": \"41 год Назад в будущее\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 3 Category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId3\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"annotation\": \"Проверь себя на прочность в городском чемпионате ловкости и баланса. Бег с яйцом на ложке, ходьба по бревну, метание мешков и другие испытания — для взрослых и детей.\",\n    \"category\": {{categoryId1}},\n    \"description\": \"Настоящий городской праздник спорта и смеха. В программе: эстафета с яйцом в ложке, полоса препятствий на скорость, метание мешков в цель и командный квест на баланс. Три возрастные категории, судьи с секундомерами, призы и море позитива. Начало в 12:00.\",\n    \"eventDate\": \"2026-08-10 12:00:00\",\n    \"location\": {\n        \"lat\": 55.7900,\n        \"lon\": 37.6500\n    },\n    \"paid\": true,\n    \"participantLimit\": 1000,\n    \"requestModeration\": false,\n    \"title\": \"Городской чемпионат ловкости и баланса\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 4 Category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId4\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"annotation\": \"Владлен Макарович приглашает на свой День рождения в стиле 80-х. Пластинки, танцы, ретро-фуршет и душевные разговоры под винил.\",\r\n    \"category\": {{categoryId2}},\r\n    \"description\": \"Вечер в лучших традициях старой школы: виниловые пластинки, коктейли в стаканах с соломкой и конкурсы на знание песен прошлых лет. Будет караоке, фотосушка и чаепитие с пирогами от Макаровича. Вход по приглашениям, но друзьям — всегда рады.\",\r\n    \"eventDate\": \"2026-07-15 18:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7650,\r\n        \"lon\": 37.6250\r\n    },\r\n    \"paid\": false,\r\n    \"participantLimit\": 25,\r\n    \"requestModeration\": false,\r\n    \"title\": \"ДР Владлена Макаровича\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 5 Category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId5\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"annotation\": \"Анжелика Станиславовна приглашает на свой звёздный День рождения. Красная дорожка, фуршет, живая музыка и лучшие люди города. Будет жарко!\",\r\n    \"category\": {{categoryId2}},\r\n    \"description\": \"Светское мероприятие в честь Дня рождения известной ведущей и певицы Анжелики Станиславовны. Гостей ждут: живой джаз, танцевальный флешмоб, розыгрыш призов и праздничный торт от лучшего кондитера города. Дресс-код — элегантный. Начало в 19:00.\",\r\n    \"eventDate\": \"2026-07-20 19:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7800,\r\n        \"lon\": 37.6400\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 40,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Звёздный ДР Анжелики Станиславовны\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event 6 Category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventId6\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"annotation\": \"Закрытая вечеринка в честь Дня рождения металл-группы «Стальной Рассвет». Только свои, только хэви-металл и полный андеграунд.\",\r\n    \"category\": {{categoryId2}},\r\n    \"description\": \"Подпольный клуб на окраине города. В программе: эксклюзивный концерт, распаковка нового альбома, розыгрыш винила и батл гитаристов. Вход — по паролю. Атмосфера — как на настоящем металл-сборище. Начало в 21:00.\",\r\n    \"eventDate\": \"2026-08-01 21:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7950,\r\n        \"lon\": 37.6600\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 25,\r\n    \"requestModeration\": true,\r\n    \"title\": \"ДР группы «Стальной Рассвет»\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Search",
+      "item": [
+        {
+          "name": "Request 500 m",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Expected 1 event\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    pm.expect(events.length).to.eql(1);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Event is '41 год Назад в будущее'\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    pm.expect(events[0].title).to.eql(\"41 год Назад в будущее\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Event distance ≤ 500m\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    pm.expect(events[0].distance).to.be.at.most(500);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Events sorted by distance\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    for (let i = 0; i < events.length - 1; i++) {\r",
+                  "        pm.expect(events[i].distance).to.be.at.most(events[i+1].distance);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=500&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "500"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request 1500 m",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Expected 3 events\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    pm.expect(events.length).to.eql(3);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Events are expected\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    const titles = events.map(e => e.title);\r",
+                  "    pm.expect(titles).to.include(\"41 год Назад в будущее\");\r",
+                  "    pm.expect(titles).to.include(\"ДР Владлена Макаровича\");\r",
+                  "    pm.expect(titles).to.include(\"Звёздный ДР Анжелики Станиславовны\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"All events within radius 1500m\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    events.forEach(event => {\r",
+                  "        pm.expect(event.distance).to.be.at.most(1500);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Events sorted by distance\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    for (let i = 0; i < events.length - 1; i++) {\r",
+                  "        pm.expect(events[i].distance).to.be.at.most(events[i+1].distance);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=1500&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "1500"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request 3000m",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Expected 6 events\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    pm.expect(events.length).to.eql(6);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"All events within radius 3000m\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    events.forEach(event => {\r",
+                  "        pm.expect(event.distance).to.be.at.most(3000);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Events sorted by distance\", function () {\r",
+                  "    const events = pm.response.json();\r",
+                  "    for (let i = 0; i < events.length - 1; i++) {\r",
+                  "        pm.expect(events[i].distance).to.be.at.most(events[i+1].distance);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=3000&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "3000"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Private Test Event by ID",
+      "item": [
+        {
+          "name": "Test distance 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Ответ содержит EventFullDto\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.be.an('object');\r",
+                  "    pm.expect(event).to.have.property('id');\r",
+                  "    pm.expect(event).to.have.property('title');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть поле distance\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.have.property('distance');\r",
+                  "    pm.expect(event.distance).to.be.a('number');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Расстояние равно 0 (или около 0)\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    const tolerance = 10;\r",
+                  "    pm.expect(event.distance).to.be.at.most(tolerance);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Название события совпадает\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.title).to.eql(\"41 год Назад в будущее\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId2}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId2}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test distance 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть поле distance\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.have.property('distance');\r",
+                  "    pm.expect(event.distance).to.be.a('number');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Расстояние положительное (событие далеко)\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.distance).to.be.above(2500);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Название события совпадает\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.title).to.eql(\"ДР группы «Стальной Рассвет»\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId6}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId6}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test distance 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть поле distance\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.have.property('distance');\r",
+                  "    pm.expect(event.distance).to.be.a('number');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Расстояние примерно равно 1200 м\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    const expectedDistance = 1200;\r",
+                  "    const tolerance = 100;\r",
+                  "    pm.expect(event.distance).to.be.within(expectedDistance - tolerance, expectedDistance + tolerance);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Название события совпадает\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.title).to.eql(\"ДР Владлена Макаровича\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId4}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId4}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Validation",
+      "item": [
+        {
+          "name": "Not Valid lon",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId1}}?lat=55.7730&lon=1000&radiusMeters=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId1}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "1000"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "500"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Not Valid lat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId2}}?lat=1000&lon=37.6330&radiusMeters=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId2}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "1000"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "500"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Not Valid radius",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
+                  "    const exception = pm.response.json();\r",
+                  "    pm.expect(exception).to.have.property('message');\r",
+                  "    pm.expect(exception.message).to.include(\"радиус\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId3}}?lat=55.7730&lon=37.6330&radiusMeters=50000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId3}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "50000"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Not radius",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
+                  "    const exception = pm.response.json();\r",
+                  "    pm.expect(exception).to.have.property('message');\r",
+                  "    pm.expect(exception.message).to.include(\"radiusMeters\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId4}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "events",
+                "{{eventId4}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Not Valid UserID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
+                  "    const exception = pm.response.json();\r",
+                  "    pm.expect(exception).to.have.property('message');\r",
+                  "    pm.expect(exception.message).to.include(\"пользователь\");\r",
+                  "    pm.expect(exception.message).to.include(\"не найден\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/99999/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "99999",
+                "events",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                },
+                {
+                  "key": "radiusMeters",
+                  "value": "500"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Public Test Events by ID",
+      "item": [
+        {
+          "name": "Get Event 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Ответ содержит EventFullDto\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.be.an('object');\r",
+                  "    pm.expect(event).to.have.property('id');\r",
+                  "    pm.expect(event).to.have.property('title');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть поле distance\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.have.property('distance');\r",
+                  "    pm.expect(event.distance).to.be.a('number');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Название события совпадает\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.title).to.eql(\"Картошка-fest\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId1}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId1}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Ответ содержит EventFullDto\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.be.an('object');\r",
+                  "    pm.expect(event).to.have.property('id');\r",
+                  "    pm.expect(event).to.have.property('title');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"В ответе есть поле distance\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event).to.have.property('distance');\r",
+                  "    pm.expect(event.distance).to.be.a('number');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Название события совпадает\", function () {\r",
+                  "    const event = pm.response.json();\r",
+                  "    pm.expect(event.title).to.eql(\"Городской чемпионат ловкости и баланса\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId3}}?lat=55.7730&lon=37.6330",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId3}}"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "55.7730"
+                },
+                {
+                  "key": "lon",
+                  "value": "37.6330"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
