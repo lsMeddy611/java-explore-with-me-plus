@@ -56,24 +56,24 @@ class AdminEventControllerTest {
         UserShortDto initiator = new UserShortDto(1L, "Иван Иванов");
         Location location = new Location(55.7558f, 37.6173f);
 
-        eventFullDto = new EventFullDto(
-                "Отличный концерт в Москве",
-                category,
-                0L,
-                LocalDateTime.now().minusDays(1),
-                "Подробное описание концерта",
-                LocalDateTime.now().plusDays(7),
-                1L,
-                initiator,
-                location,
-                false,
-                100,
-                null,
-                true,
-                EventState.PENDING,
-                "Концерт в Москве",
-                0L
-        );
+        eventFullDto = EventFullDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(category)
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now().minusDays(1))
+                .description("Подробное описание концерта")
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(initiator)
+                .location(location)
+                .paid(false)
+                .participantLimit(100)
+                .publishedOn(null)
+                .requestModeration(true)
+                .state(EventState.PENDING)
+                .title("Концерт в Москве")
+                .views(0L)
+                .build();
 
         updateRequest = new UpdateEventAdminRequest(
                 "Обновленная аннотация концерта",
@@ -119,24 +119,25 @@ class AdminEventControllerTest {
     @Test
     @DisplayName("Обновление события администратором - успешный сценарий")
     void updateAdminEvent_ValidData_ReturnUpdatedEvent() throws Exception {
-        EventFullDto updatedEvent = new EventFullDto(
-                "Обновленная аннотация концерта",
-                new CategoryDto(1L, "Концерты"),
-                0L,
-                LocalDateTime.now().minusDays(1),
-                "Обновленное описание концерта",
-                LocalDateTime.now().plusDays(10),
-                1L,
-                new UserShortDto(1L, "Иван Иванов"),
-                new Location(55.7558f, 37.6173f),
-                true,
-                200,
-                LocalDateTime.now(),
-                false,
-                EventState.PUBLISHED,
-                "Обновленный концерт",
-                0L
-        );
+
+        EventFullDto updatedEvent = EventFullDto.builder()
+                .annotation("Обновленная аннотация концерта")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now().minusDays(1))
+                .description("Обновленное описание концерта")
+                .eventDate(LocalDateTime.now().plusDays(10))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .location(new Location(55.7558f, 37.6173f))
+                .paid(true)
+                .participantLimit(200)
+                .publishedOn(LocalDateTime.now())
+                .requestModeration(false)
+                .state(EventState.PUBLISHED)
+                .title("Обновленный концерт")
+                .views(0L)
+                .build();
 
         when(eventService.updateAdminEvent(anyLong(), any(UpdateEventAdminRequest.class)))
                 .thenReturn(updatedEvent);

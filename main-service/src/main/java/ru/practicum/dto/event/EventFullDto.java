@@ -1,6 +1,7 @@
 package ru.practicum.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import ru.practicum.dto.category.CategoryDto;
@@ -64,6 +65,7 @@ public record EventFullDto(
         @PositiveOrZero(message = "Количество просмотров не может быть отрицательным")
         Long views,
 
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         Double distance
 ) {
     public EventFullDto withDistance(Double newDistance) {

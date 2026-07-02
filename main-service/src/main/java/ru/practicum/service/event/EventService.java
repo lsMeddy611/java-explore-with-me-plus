@@ -1,5 +1,8 @@
 package ru.practicum.service.event;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.EndpointHitInfo;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
@@ -10,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface EventService {
-    EventFullDto getEventById(Long eventId, Double lat, Double lon);
+    EventFullDto getEventById(Long eventId);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
+
+    EventFullDto getEventWithDistance(Long eventId, Double lat, Double lon);
 
     EventFullDto createEvent(Long userId, NewEventDto newEventDto);
 

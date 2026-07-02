@@ -83,7 +83,6 @@ class PrivateEventControllerTest {
                 .state(EventState.PENDING)
                 .title("Концерт в Москве")
                 .views(0L)
-                .distance(null)
                 .build();
 
         eventShortDto = EventShortDto.builder()
@@ -96,9 +95,7 @@ class PrivateEventControllerTest {
                 .paid(false)
                 .title("Концерт в Москве")
                 .views(0L)
-                .distance(null)
                 .build();
-
     }
 
     @Test

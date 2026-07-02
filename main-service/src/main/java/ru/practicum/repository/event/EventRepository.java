@@ -17,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
     Optional<Event> findByIdAndInitiatorId(Long id, Long initiatorId);
 
     List<EventShortDto> findEventsWithinRadius(Double radiusMeters, Double lat, Double lot, Pageable pageable);
-/*    планируемая функциональность данного метода заключается в том, что мы передаем местоположения юзера
+/*  планируемая функциональность данного метода заключается в том, что мы передаем местоположения юзера
     и задаем радиус внутри которого хотим найти события, далее вычисляем дистанцию каждого события и при попадании
     в заданный радиус сохраняется в dto возвращаем событие в коллекцию с сортировкой удаленности событий от заданного местоположения*/
 }

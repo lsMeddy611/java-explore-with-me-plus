@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 public record PrivateEventsFilter(
         @NotNull(message = "Радиус не должен быть null")
-        @Positive @Max(5000)
+        @Positive @Min(100) @Max(10000)
         Double radiusMeters,
 
         @NotNull(message = "Широта не должна быть null")

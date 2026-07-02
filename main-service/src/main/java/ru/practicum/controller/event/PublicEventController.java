@@ -45,8 +45,7 @@ public class PublicEventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getEventById(@Positive @PathVariable("eventId") Long eventId,
-                                                     @RequestParam(required = false) @Min(-90) @Max(90) Double lat,
-                                                     @RequestParam(required = false) @Min(-180) @Max(180) Double lon,
+
                                                      HttpServletRequest request) {
         log.info("GET /events/{}", eventId);
         EndpointHit endpointHit = createEndpointHit(request);
@@ -57,7 +56,14 @@ public class PublicEventController {
             log.error("Не удалось сохранить информацию о статистике endpointHit= {}", endpointHit);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(eventId, lat, lon));
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(eventId));
+    }
+
+    @GetMapping("/{eventId}/distance")
+    public ResponseEntity<EventFullDto> getEventWithDistance(@Positive @PathVariable("eventId") Long eventId,
+                                                             @RequestParam @NotNull @Min(-90) @Max(90) Double lat,
+                                                             @RequestParam @NotNull @Min(-180) @Max(180) Double lon) {
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventWithDistance(eventId, lat, lon));
     }
 
     private EndpointHit createEndpointHit(HttpServletRequest request) {

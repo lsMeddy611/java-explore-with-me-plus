@@ -126,7 +126,7 @@ class EventServiceImplTest {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
         when(eventMapper.toFullDto(eq(event), anyLong())).thenReturn(eventFullDto);
 
-        EventFullDto result = eventService.getEventById(1L, null, null);
+        EventFullDto result = eventService.getEventById(1L);
 
         assertNotNull(result);
         assertEquals(eventFullDto.id(), result.id());
@@ -143,7 +143,7 @@ class EventServiceImplTest {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> eventService.getEventById(1L, null, null));
+                () -> eventService.getEventById(1L));
 
         assertEquals("Ивент не опубликован", exception.getMessage());
         verify(eventRepository).findById(1L);
@@ -155,7 +155,7 @@ class EventServiceImplTest {
         when(eventRepository.findById(99L)).thenReturn(Optional.empty());
 
         NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> eventService.getEventById(1L, null, null));
+                () -> eventService.getEventById(99L));
 
         assertEquals("Событие с id= 99 не существует", exception.getMessage());
         verify(eventRepository).findById(99L);

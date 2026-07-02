@@ -65,24 +65,19 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
 
     @Override
-    public EventFullDto getEventById(Long eventId, Double lat, Double lon) {
+    public EventFullDto getEventById(Long eventId) {
         log.info("Получение ивента по id= {}", eventId);
         Event event = getEventByIdOrThrow(eventId);
-
         if (!event.getState().equals(EventState.PUBLISHED.name())) {
             log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
             throw new NotFoundException("Ивент не опубликован");
         }
+
         Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
         log.debug("Ивент успешно получен");
-
-        Double distance = null;
-        if (lat != null && lon != null) {
-            distance = calculateDistance(lat, lon, event.getLat(), event.getLon());
-            log.debug("Дистанция до ивента вычислена: {} м", distance);
-        }
-        return eventMapper.toFullDto(event, views).withDistance(distance);
+        return eventMapper.toFullDto(event, views);
     }
+
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
@@ -96,6 +91,25 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(event -> eventMapper.toShortDto(event, viewsMap))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EventFullDto getEventWithDistance(Long eventId, Double lat, Double lon) {
+        log.info("Получение ивента по id= {}", eventId);
+        Event event = getEventByIdOrThrow(eventId);
+
+        if (!event.getState().equals(EventState.PUBLISHED.name())) {
+            log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
+            throw new NotFoundException("Ивент не опубликован");
+        }
+
+        Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
+        log.debug("Ивент успешно получен");
+
+        Double distance = calculateDistance(lat, lon, event.getLat(), event.getLon());
+        log.debug("Дистанция до ивента вычислена: {} м", distance);
+
+        return eventMapper.toFullDto(event, views).withDistance(distance);
     }
 
     @Override
