@@ -8,8 +8,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.StatsClient;
+import ru.practicum.ViewStats;
+import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
+import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
@@ -22,7 +28,11 @@ import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -131,6 +141,7 @@ class EventServiceImplTest {
         assertNotNull(result);
         assertEquals(eventFullDto.id(), result.id());
         assertEquals(eventFullDto.title(), result.title());
+        assertNull(result.distance());
 
         verify(eventRepository).findById(1L);
         verify(eventMapper).toFullDto(eq(event), anyLong());
@@ -162,6 +173,75 @@ class EventServiceImplTest {
     }
 
     @Test
+    @DisplayName("Получение события по ID c дистанцией - успешный сценарий")
+    void getEventWithDistance_withValidCoordinates_ReturnEventFullDto() {
+        Long eventId = 1L;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setLat(55.7512);
+        event.setLon(37.6185);
+        event.setState(String.valueOf(EventState.PUBLISHED));
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventMapper.toFullDto(any(), anyLong())).thenReturn(
+                EventFullDto.builder().id(eventId).build()
+        );
+
+        EventFullDto result = eventService.getEventWithDistance(eventId, lat, lon);
+
+        assertNotNull(result);
+        assertEquals(eventId, result.id());
+
+        assertTrue(result.distance() > 500 && result.distance() < 540);
+
+        verify(eventRepository).findById(1L);
+        verify(eventMapper).toFullDto(any(),anyLong());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - событие не найдено")
+    void getEventWithDistance_EventNotFound_ThrowNotFoundException() {
+        Long eventId = 99L;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> eventService.getEventWithDistance(eventId, lat, lon));
+
+        assertEquals("Событие с id= 99 не существует", exception.getMessage());
+        verify(eventRepository).findById(99L);
+        verify(eventMapper, never()).toFullDto(any(), anyLong());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - событие не опубликовано")
+    void getEventWithDistance_EventNotPublished_ThrowNotFoundException() {
+        Long eventId = 1L;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setLat(55.7512);
+        event.setLon(37.6185);
+        event.setState(String.valueOf(EventState.PENDING));
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> eventService.getEventWithDistance(eventId, lat, lon));
+
+        assertEquals("Ивент не опубликован", exception.getMessage());
+        verify(eventRepository).findById(1L);
+        verify(eventMapper, never()).toFullDto(any(), anyLong());
+    }
+
+    @Test
     @DisplayName("Создание события - успешный сценарий")
     void createEvent_ValidData_ReturnCreatedEvent() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -174,6 +254,7 @@ class EventServiceImplTest {
 
         assertNotNull(result);
         assertEquals(eventFullDto.id(), result.id());
+        assertNull(result.distance());
 
         verify(userRepository).findById(1L);
         verify(categoryRepository).findById(1L);
@@ -248,6 +329,90 @@ class EventServiceImplTest {
     }
 
     @Test
+    @DisplayName("Получение подборки событий по координатам - успешный сценарий")
+    void getUserEventsByCoordinates_ValidCoordinates_ReturnCollectionEventShortDto() {
+        EventShortDto eventShortDto = EventShortDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .paid(false)
+                .title("Концерт в Москве")
+                .views(null)
+                .distance(300.0)
+                .build();
+
+        Long userId = 1L;
+        Double radiusMeters = 1000.0;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventRepository.findEventsWithinRadius(anyDouble(), anyDouble(), anyDouble(), any(Pageable.class)))
+                .thenReturn(List.of(eventShortDto));
+        when(statsClient.getHits(anyString(), anyString(), anyList(), anyBoolean()))
+                .thenReturn(Collections.emptyList());
+
+        List<EventShortDto> result = eventService.getUserEventsByCoordinates(userId,
+                new PrivateEventsFilter(radiusMeters, lat, lon), page, size);
+
+        assertNotNull(result);
+        verify(userRepository).findById(1L);
+        verify(eventRepository).findEventsWithinRadius(radiusMeters, lat, lon, pageable);
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий по координатам - пустой список")
+    void getUserEventsByCoordinates_NoEventsInRadius_ReturnEmptyList() {
+        Long userId = 1L;
+        Double radiusMeters = 1000.0;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(eventRepository.findEventsWithinRadius(anyDouble(), anyDouble(), anyDouble(), any(Pageable.class)))
+                .thenReturn(List.of());
+
+        List<EventShortDto> result = eventService.getUserEventsByCoordinates(userId,
+                new PrivateEventsFilter(radiusMeters, lat, lon), page, size);
+
+        assertTrue(result.isEmpty());
+        verify(userRepository).findById(1L);
+        verify(eventRepository).findEventsWithinRadius(radiusMeters, lat, lon, pageable);
+        verify(statsClient, never()).getHits(anyString(), anyString(), anyList(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий по координатам - пользователь не найдено")
+    void getUserEventsByCoordinates_EventNotFound_ThrowNotFoundException() {
+        Long userId = 99L;
+        Double radiusMeters = 1000.0;
+        Double lat = 55.7558;
+        Double lon = 37.6173;
+        int page = 0;
+        int size = 10;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> eventService.getUserEventsByCoordinates(userId,
+                        new PrivateEventsFilter(radiusMeters, lat, lon), page, size));
+
+        assertEquals("Пользователь с id=99 не найден", exception.getMessage());
+        verify(userRepository).findById(99L);
+        verify(eventRepository, never()).findEventsWithinRadius(anyDouble(), anyDouble(), anyDouble(), any());
+        verify(statsClient, never()).getHits(anyString(), anyString(), anyList(), anyBoolean());
+    }
+
+    @Test
     @DisplayName("Обновление события администратором - успешный сценарий публикации")
     void updateAdminEvent_PublishEvent_ReturnUpdatedEvent() {
         event.setState("PENDING");
@@ -265,6 +430,7 @@ class EventServiceImplTest {
         assertNotNull(result);
         assertEquals("PUBLISHED", event.getState());
         assertNotNull(event.getPublishedOn());
+        assertNull(result.distance());
 
         verify(eventRepository).findById(1L);
         verify(eventRepository).save(event);
@@ -342,6 +508,7 @@ class EventServiceImplTest {
         EventFullDto result = eventService.updateUserEvent(1L, 1L, request);
 
         assertNotNull(result);
+        assertNull(result.distance());
 
         verify(userRepository).findById(1L);
         verify(eventRepository).findByIdAndInitiatorId(1L, 1L);

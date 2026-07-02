@@ -1,17 +1,29 @@
 package ru.practicum.controller.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
+import ru.practicum.dto.event.param_objects.PublicEventsFilter;
 import ru.practicum.dto.location.Location;
 import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.exception.ConflictException;
@@ -201,6 +213,79 @@ class PrivateEventControllerTest {
 
         mockMvc.perform(get("/users/1/events/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий поблизости - успешный сценарий")
+    void getUserEventsByCoordinates_withValidCoordinates_ReturnCollectionEvent() throws Exception {
+        eventShortDto = EventShortDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .paid(false)
+                .title("Концерт в Москве")
+                .views(0L)
+                .distance(200.0)
+                .build();
+
+        List<EventShortDto> events = List.of(eventShortDto);
+
+        when(eventService.getUserEventsByCoordinates(anyLong(), any(PrivateEventsFilter.class), anyInt(), anyInt()))
+                .thenReturn(events);
+
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("Концерт в Москве"))
+                .andExpect(jsonPath("$[0].distance").value(200));
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - пользователь не найден")
+    void getUserEventsByCoordinates_UserNotFound_ReturnNotFound() throws Exception {
+        when(eventService.getUserEventsByCoordinates(anyLong(), any(PrivateEventsFilter.class), anyInt(), anyInt()))
+                .thenThrow(new NotFoundException("Пользователь с id= 999 не найден"));
+
+        mockMvc.perform(get("/users/999/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - отрицательный ID")
+    void getEventWithDistance_NegativeId_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/-1/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - обязательный параметр равен null")
+    void getUserEventsByCoordinates_MissingRequiredParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - невалидные обязательные параметры")
+    void getUserEventsByCoordinates_NotValidationParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("radiusMeters", "-100")
+                        .param("lat", "200")
+                        .param("lon", "-300"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

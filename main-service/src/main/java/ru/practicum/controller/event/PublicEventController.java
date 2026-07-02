@@ -45,7 +45,6 @@ public class PublicEventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getEventById(@Positive @PathVariable("eventId") Long eventId,
-
                                                      HttpServletRequest request) {
         log.info("GET /events/{}", eventId);
         EndpointHit endpointHit = createEndpointHit(request);

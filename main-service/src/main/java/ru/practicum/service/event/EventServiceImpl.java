@@ -72,12 +72,10 @@ public class EventServiceImpl implements EventService {
             log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
             throw new NotFoundException("Ивент не опубликован");
         }
-
         Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
         log.debug("Ивент успешно получен");
         return eventMapper.toFullDto(event, views);
     }
-
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
@@ -171,6 +169,10 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(page, size);
         List<EventShortDto> eventsNearby = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
                 filter.lon(), pageable);
+
+        if (eventsNearby.isEmpty()) {
+            return List.of();
+        }
 
         Map<Long, Long> viewsMap = getViews(eventsNearby.stream().map(EventShortDto::id).toList());
         log.debug("События успешно получены");
