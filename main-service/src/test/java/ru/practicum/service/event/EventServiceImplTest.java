@@ -15,6 +15,7 @@ import ru.practicum.ViewStats;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
+import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -331,19 +332,6 @@ class EventServiceImplTest {
     @Test
     @DisplayName("Получение подборки событий по координатам - успешный сценарий")
     void getUserEventsByCoordinates_ValidCoordinates_ReturnCollectionEventShortDto() {
-        EventShortDto eventShortDto = EventShortDto.builder()
-                .annotation("Отличный концерт в Москве")
-                .category(new CategoryDto(1L, "Концерты"))
-                .confirmedRequests(0L)
-                .eventDate(LocalDateTime.now().plusDays(7))
-                .id(1L)
-                .initiator(new UserShortDto(1L, "Иван Иванов"))
-                .paid(false)
-                .title("Концерт в Москве")
-                .views(null)
-                .distance(300.0)
-                .build();
-
         Long userId = 1L;
         Double radiusMeters = 1000.0;
         Double lat = 55.7558;
@@ -352,18 +340,56 @@ class EventServiceImplTest {
         int size = 10;
         Pageable pageable = PageRequest.of(page, size);
 
+        EventShortProjection eventProjection = mock(EventShortProjection.class);
+        when(eventProjection.getId()).thenReturn(1L);
+        when(eventProjection.getAnnotation()).thenReturn("Отличный концерт в Москве");
+        when(eventProjection.getCategory()).thenReturn(category);
+        when(eventProjection.getConfirmedRequests()).thenReturn(0L);
+        when(eventProjection.getEventDate()).thenReturn(LocalDateTime.now().plusDays(7));
+        when(eventProjection.getInitiator()).thenReturn(user);
+        when(eventProjection.getPaid()).thenReturn(false);
+        when(eventProjection.getTitle()).thenReturn("Концерт в Москве");
+        when(eventProjection.getDistance()).thenReturn(300.0);
+
+        EventShortDto expectedDto = EventShortDto.builder()
+                .id(1L)
+                .annotation("Отличный концерт в Москве")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .paid(false)
+                .title("Концерт в Москве")
+                .distance(300.0)
+                .views(0L)
+                .build();
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(eventRepository.findEventsWithinRadius(anyDouble(), anyDouble(), anyDouble(), any(Pageable.class)))
-                .thenReturn(List.of(eventShortDto));
+        when(eventRepository.findEventsWithinRadius(radiusMeters, lat, lon, pageable))
+                .thenReturn(List.of(eventProjection));
         when(statsClient.getHits(anyString(), anyString(), anyList(), anyBoolean()))
                 .thenReturn(Collections.emptyList());
 
-        List<EventShortDto> result = eventService.getUserEventsByCoordinates(userId,
-                new PrivateEventsFilter(radiusMeters, lat, lon), page, size);
+        List<EventShortDto> result = eventService.getUserEventsByCoordinates(
+                userId,
+                new PrivateEventsFilter(radiusMeters, lat, lon),
+                page,
+                size
+        );
 
         assertNotNull(result);
-        verify(userRepository).findById(1L);
+        assertEquals(1, result.size());
+
+        EventShortDto actualDto = result.get(0);
+        assertEquals(expectedDto.id(), actualDto.id());
+        assertEquals(expectedDto.annotation(), actualDto.annotation());
+        assertEquals(expectedDto.title(), actualDto.title());
+        assertEquals(expectedDto.distance(), actualDto.distance());
+
+        verify(userRepository).findById(userId);
         verify(eventRepository).findEventsWithinRadius(radiusMeters, lat, lon, pageable);
+        verify(statsClient).getHits(anyString(), anyString(), anyList(), anyBoolean());
+        verifyNoMoreInteractions(userRepository, eventRepository, statsClient);
     }
 
     @Test

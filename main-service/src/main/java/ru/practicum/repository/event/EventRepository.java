@@ -3,8 +3,11 @@ package ru.practicum.repository.event;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.model.Event;
 
 import java.util.List;
@@ -16,8 +19,32 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
 
     Optional<Event> findByIdAndInitiatorId(Long id, Long initiatorId);
 
-    List<EventShortDto> findEventsWithinRadius(Double radiusMeters, Double lat, Double lot, Pageable pageable);
-/*  планируемая функциональность данного метода заключается в том, что мы передаем местоположения юзера
-    и задаем радиус внутри которого хотим найти события, далее вычисляем дистанцию каждого события и при попадании
-    в заданный радиус сохраняется в dto возвращаем событие в коллекцию с сортировкой удаленности событий от заданного местоположения*/
+    @Query("""
+    SELECT 
+        e.annotation AS annotation,
+        e.category AS category,
+        e.confirmedRequests AS confirmedRequests,
+        e.eventDate AS eventDate,
+        e.id AS id,
+        e.initiator AS initiator,
+        e.paid AS paid,
+        e.title AS title,
+        (6371000 * acos(
+            cos(radians(:lat)) * cos(radians(e.lat)) *
+            cos(radians(e.lon) - radians(:lon)) +
+            sin(radians(:lat)) * sin(radians(e.lat))
+        )) AS distance
+    FROM Event e
+    WHERE (6371000 * acos(
+        cos(radians(:lat)) * cos(radians(e.lat)) *
+        cos(radians(e.lon) - radians(:lon)) +
+        sin(radians(:lat)) * sin(radians(e.lat))
+    )) <= :radiusMeters
+    ORDER BY distance
+    """)
+    List<EventShortProjection> findEventsWithinRadius(
+            @Param("radiusMeters") Double radiusMeters,
+            @Param("lat") Double lat,
+            @Param("lon") Double lon,
+            Pageable pageable);
 }
