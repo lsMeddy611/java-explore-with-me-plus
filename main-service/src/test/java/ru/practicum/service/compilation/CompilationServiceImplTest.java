@@ -80,7 +80,7 @@ public class CompilationServiceImplTest {
                 new UserShortDto(1L, "User"),
                 false,
                 "Title",
-                100L
+                100L, null
         );
         compilationDto = new CompilationDto(10L, true, "Test Compilation", List.of(shortEvent));
         newCompilationDto = new NewCompilationDto("New", true, List.of(1L, 2L));

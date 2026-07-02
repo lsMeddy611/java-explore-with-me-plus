@@ -1,13 +1,16 @@
 package ru.practicum.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.location.Location;
 import ru.practicum.dto.user.UserShortDto;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record EventFullDto(
         @NotBlank(message = "Аннотация события не должна быть пустой")
         @Size(min = 20, max = 2000, message = "Аннотация должна содержать от 20 до 2000 символов")
@@ -60,5 +63,17 @@ public record EventFullDto(
         String title,
 
         @PositiveOrZero(message = "Количество просмотров не может быть отрицательным")
-        Long views
-) {}
+        Long views,
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        Double distance
+) {
+    public EventFullDto withDistance(Double newDistance) {
+        return new EventFullDto(
+                annotation, category, confirmedRequests, createdOn, description, eventDate,
+                id, initiator, location, paid, participantLimit, publishedOn, requestModeration,
+                state, title, views, newDistance
+        );
+    }
+}
+
