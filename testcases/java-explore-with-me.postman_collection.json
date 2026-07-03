@@ -28,6 +28,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -69,6 +80,17 @@
                   "\r",
                   "const jsonData = pm.response.json();\r",
                   "pm.collectionVariables.set(\"categoryId1\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -125,6 +147,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -166,6 +199,17 @@
                   "\r",
                   "const jsonData = pm.response.json();\r",
                   "pm.collectionVariables.set(\"eventId1\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -223,6 +267,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -275,6 +330,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -317,6 +383,17 @@
                   "\r",
                   "const jsonData = pm.response.json();\r",
                   "pm.collectionVariables.set(\"eventId4\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -374,6 +451,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -421,6 +509,17 @@
                   "\r",
                   "const jsonData = pm.response.json();\r",
                   "pm.collectionVariables.set(\"eventId6\", jsonData.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -497,6 +596,17 @@
                   "        pm.expect(events[i].distance).to.be.at.most(events[i+1].distance);\r",
                   "    }\r",
                   "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -589,6 +699,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -660,6 +781,17 @@
                   "        pm.expect(events[i].distance).to.be.at.most(events[i+1].distance);\r",
                   "    }\r",
                   "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -751,13 +883,24 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId2}}?lat=55.7730&lon=37.6330",
+              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId3}}?lat=55.7730&lon=37.6330",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -765,7 +908,7 @@
                 "users",
                 "{{userId}}",
                 "events",
-                "{{eventId2}}"
+                "{{eventId3}}"
               ],
               "query": [
                 {
@@ -807,6 +950,17 @@
                   "    const event = pm.response.json();\r",
                   "    pm.expect(event.title).to.eql(\"ДР группы «Стальной Рассвет»\");\r",
                   "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -887,6 +1041,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -937,6 +1102,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "protocolProfileBehavior": {
@@ -955,7 +1131,7 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId1}}?lat=55.7730&lon=1000&radiusMeters=500",
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=1000&radiusMeters=500",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -963,7 +1139,7 @@
                 "users",
                 "{{userId}}",
                 "events",
-                "{{eventId1}}"
+                "nearby"
               ],
               "query": [
                 {
@@ -998,13 +1174,24 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId2}}?lat=1000&lon=37.6330&radiusMeters=500",
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=1000&lon=37.6330&radiusMeters=500",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1012,7 +1199,7 @@
                 "users",
                 "{{userId}}",
                 "events",
-                "{{eventId2}}"
+                "nearby"
               ],
               "query": [
                 {
@@ -1108,13 +1295,24 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId4}}?lat=55.7730&lon=37.6330",
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=37.6330",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1122,7 +1320,7 @@
                 "users",
                 "{{userId}}",
                 "events",
-                "{{eventId4}}"
+                "nearby"
               ],
               "query": [
                 {
@@ -1160,19 +1358,30 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/99999/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=500",
+              "raw": "{{baseUrl}}/users/9999/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=500",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "users",
-                "99999",
+                "9999",
                 "events",
                 "nearby"
               ],
@@ -1214,6 +1423,17 @@
                   "    const response = pm.response.json();\r",
                   "    pm.expect(response).to.have.property('state', 'PUBLISHED');\r",
                   "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1268,6 +1488,17 @@
                   "    const response = pm.response.json();\r",
                   "    pm.expect(response).to.have.property('state', 'PUBLISHED');\r",
                   "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1340,6 +1571,17 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
@@ -1402,19 +1644,31 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/events/{{eventId3}}?lat=55.7730&lon=37.6330",
+              "raw": "{{baseUrl}}/events/{{eventId3}}/distance?lat=55.7730&lon=37.6330",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "events",
-                "{{eventId3}}"
+                "{{eventId3}}",
+                "distance"
               ],
               "query": [
                 {
