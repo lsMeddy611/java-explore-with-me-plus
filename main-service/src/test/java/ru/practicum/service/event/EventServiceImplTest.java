@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.StatsClient;
-import ru.practicum.ViewStats;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
@@ -31,9 +30,7 @@ import ru.practicum.repository.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -199,7 +196,7 @@ class EventServiceImplTest {
         assertTrue(result.distance() > 500 && result.distance() < 540);
 
         verify(eventRepository).findById(1L);
-        verify(eventMapper).toFullDto(any(),anyLong());
+        verify(eventMapper).toFullDto(any(), anyLong());
     }
 
     @Test

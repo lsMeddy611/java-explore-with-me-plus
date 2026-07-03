@@ -7,8 +7,6 @@ import lombok.Builder;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.dto.user.UserShortDto;
-import ru.practicum.mapper.category.CategoryMapper;
-import ru.practicum.model.Category;
 
 import java.time.LocalDateTime;
 

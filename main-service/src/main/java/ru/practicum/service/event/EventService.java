@@ -1,8 +1,5 @@
 package ru.practicum.service.event;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.EndpointHitInfo;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;

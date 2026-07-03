@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.model.Event;
 
@@ -20,8 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
     Optional<Event> findByIdAndInitiatorId(Long id, Long initiatorId);
 
     @Query("""
-    SELECT 
-        e.annotation AS annotation,
+    SELECT e.annotation AS annotation,
         e.category AS category,
         e.confirmedRequests AS confirmedRequests,
         e.eventDate AS eventDate,

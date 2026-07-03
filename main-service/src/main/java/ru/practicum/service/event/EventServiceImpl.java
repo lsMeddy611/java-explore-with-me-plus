@@ -55,6 +55,7 @@ public class EventServiceImpl implements EventService {
         queryFactory = new JPAQueryFactory(entityManager);
         log.debug("JPAQueryFactory успешно инициализирован");
     }
+
     private static final double EARTH_RADIUS_METERS = 6371000.0;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
@@ -166,7 +167,7 @@ public class EventServiceImpl implements EventService {
                                                           Integer size) {
         getUserOrThrow(userId);
         log.info("Получение ближайших событий пользователя userId={} по радиусу radiusMeters= {}м и по координатам:" +
-                " lat= {}, lon= {}" , userId, filter.radiusMeters(), filter.lat(), filter.lon());
+                " lat= {}, lon= {}", userId, filter.radiusMeters(), filter.lat(), filter.lon());
 
         Pageable pageable = PageRequest.of(page, size);
         List<EventShortProjection> eventsNearbyProjection = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
