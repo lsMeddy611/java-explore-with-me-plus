@@ -22,11 +22,13 @@ import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
 import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
+import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.model.*;
+import ru.practicum.model.QEvent;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
@@ -53,6 +55,7 @@ public class EventServiceImpl implements EventService {
         queryFactory = new JPAQueryFactory(entityManager);
         log.debug("JPAQueryFactory успешно инициализирован");
     }
+
     private static final double EARTH_RADIUS_METERS = 6371000.0;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
@@ -164,11 +167,15 @@ public class EventServiceImpl implements EventService {
                                                           Integer size) {
         getUserOrThrow(userId);
         log.info("Получение ближайших событий пользователя userId={} по радиусу radiusMeters= {}м и по координатам:" +
-                " lat= {}, lon= {}" , userId, filter.radiusMeters(), filter.lat(), filter.lon());
+                " lat= {}, lon= {}", userId, filter.radiusMeters(), filter.lat(), filter.lon());
 
         Pageable pageable = PageRequest.of(page, size);
-        List<EventShortDto> eventsNearby = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
+        List<EventShortProjection> eventsNearbyProjection = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
                 filter.lon(), pageable);
+
+        List<EventShortDto> eventsNearby = eventsNearbyProjection.stream()
+                .map(EventShortDto::fromProjection)
+                .collect(Collectors.toList());
 
         if (eventsNearby.isEmpty()) {
             return List.of();

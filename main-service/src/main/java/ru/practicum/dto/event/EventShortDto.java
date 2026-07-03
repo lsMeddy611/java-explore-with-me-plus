@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import ru.practicum.dto.category.CategoryDto;
+import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.dto.user.UserShortDto;
 
 import java.time.LocalDateTime;
@@ -49,6 +50,21 @@ public record EventShortDto(
         return new EventShortDto(
                 annotation, category, confirmedRequests, eventDate,
                 id, initiator, paid, title, newViews, distance
+        );
+    }
+
+    public static EventShortDto fromProjection(EventShortProjection projection) {
+        return new EventShortDto(
+                projection.getAnnotation(),
+                new CategoryDto(projection.getCategory().getId(), projection.getCategory().getName()),
+                projection.getConfirmedRequests(),
+                projection.getEventDate(),
+                projection.getId(),
+                new UserShortDto(projection.getInitiator().getId(), projection.getInitiator().getName()),
+                projection.getPaid(),
+                projection.getTitle(),
+                null,
+                projection.getDistance()
         );
     }
 }
