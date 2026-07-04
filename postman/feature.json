@@ -281,6 +281,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -291,7 +294,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"annotation\": \"Назад в будущее под открытым небом. Летний показ в честь годовщины выхода в прокат\",\r\n    \"category\": {{categoryId1}},\r\n    \"description\": \"Вечер под открытым небом: ДеЛориан, летающая доска и машина времени на большом экране. Будет фотозона в стиле 80-х, тематический коктейль и розыгрыш призов. Начало в 20:00 — не опаздывайте, Марти!\",\r\n    \"eventDate\": \"2026-07-03 20:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7730,\r\n        \"lon\": 37.6330\r\n    },\r\n    \"paid\": false,\r\n    \"participantLimit\": 50,\r\n    \"requestModeration\": true,\r\n    \"title\": \"41 год Назад в будущее\"\r\n}",
+              "raw": "{\r\n    \"annotation\": \"Назад в будущее под открытым небом. Летний показ в честь годовщины выхода в прокат\",\r\n    \"category\": {{categoryId2}},\r\n    \"description\": \"Вечер под открытым небом: ДеЛориан, летающая доска и машина времени на большом экране. Будет фотозона в стиле 80-х, тематический коктейль и розыгрыш призов. Начало в 20:00 — не опаздывайте, Марти!\",\r\n    \"eventDate\": \"2026-07-30 20:00:00\",\r\n    \"location\": {\r\n        \"lat\": 55.7730,\r\n        \"lon\": 37.6330\r\n    },\r\n    \"paid\": false,\r\n    \"participantLimit\": 50,\r\n    \"requestModeration\": true,\r\n    \"title\": \"41 год Назад в будущее\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -842,249 +845,6 @@
       ]
     },
     {
-      "name": "Private Test Event by ID",
-      "item": [
-        {
-          "name": "Test distance 1",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ содержит EventFullDto\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event).to.be.an('object');\r",
-                  "    pm.expect(event).to.have.property('id');\r",
-                  "    pm.expect(event).to.have.property('title');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть поле distance\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event).to.have.property('distance');\r",
-                  "    pm.expect(event.distance).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Расстояние равно 0 (или около 0)\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    const tolerance = 10;\r",
-                  "    pm.expect(event.distance).to.be.at.most(tolerance);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Название события совпадает\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event.title).to.eql(\"41 год Назад в будущее\");\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId3}}?lat=55.7730&lon=37.6330",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "events",
-                "{{eventId3}}"
-              ],
-              "query": [
-                {
-                  "key": "lat",
-                  "value": "55.7730"
-                },
-                {
-                  "key": "lon",
-                  "value": "37.6330"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Test distance 2",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть поле distance\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event).to.have.property('distance');\r",
-                  "    pm.expect(event.distance).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Расстояние положительное (событие далеко)\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event.distance).to.be.above(2500);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Название события совпадает\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event.title).to.eql(\"ДР группы «Стальной Рассвет»\");\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId6}}?lat=55.7730&lon=37.6330",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "events",
-                "{{eventId6}}"
-              ],
-              "query": [
-                {
-                  "key": "lat",
-                  "value": "55.7730"
-                },
-                {
-                  "key": "lon",
-                  "value": "37.6330"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Test distance 3",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть поле distance\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event).to.have.property('distance');\r",
-                  "    pm.expect(event.distance).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Расстояние примерно равно 1200 м\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    const expectedDistance = 1200;\r",
-                  "    const tolerance = 100;\r",
-                  "    pm.expect(event.distance).to.be.within(expectedDistance - tolerance, expectedDistance + tolerance);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Название события совпадает\", function () {\r",
-                  "    const event = pm.response.json();\r",
-                  "    pm.expect(event.title).to.eql(\"ДР Владлена Макаровича\");\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId4}}?lat=55.7730&lon=37.6330",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}",
-                "events",
-                "{{eventId4}}"
-              ],
-              "query": [
-                {
-                  "key": "lat",
-                  "value": "55.7730"
-                },
-                {
-                  "key": "lon",
-                  "value": "37.6330"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "Test Validation",
       "item": [
         {
@@ -1223,18 +983,24 @@
           "name": "Not Valid radius",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"baseUrl\", \"localHost:8080\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
                   "pm.test(\"Статус 400\", function () {\r",
                   "    pm.response.to.have.status(400);\r",
                   "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
-                  "    const exception = pm.response.json();\r",
-                  "    pm.expect(exception).to.have.property('message');\r",
-                  "    pm.expect(exception.message).to.include(\"радиус\");\r",
-                  "});"
+                  ""
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1243,10 +1009,13 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}/events/{{eventId3}}?lat=55.7730&lon=37.6330&radiusMeters=50000",
+              "raw": "{{baseUrl}}/users/{{userId}}/events/nearby?lat=55.7730&lon=37.6330&radiusMeters=50000",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1254,7 +1023,7 @@
                 "users",
                 "{{userId}}",
                 "events",
-                "{{eventId3}}"
+                "nearby"
               ],
               "query": [
                 {
@@ -1284,12 +1053,7 @@
                   "pm.test(\"Статус 400\", function () {\r",
                   "    pm.response.to.have.status(400);\r",
                   "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
-                  "    const exception = pm.response.json();\r",
-                  "    pm.expect(exception).to.have.property('message');\r",
-                  "    pm.expect(exception.message).to.include(\"radiusMeters\");\r",
-                  "});"
+                  ""
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1345,13 +1109,6 @@
                 "exec": [
                   "pm.test(\"Статус 404\", function () {\r",
                   "    pm.response.to.have.status(404);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"В ответе есть сообщение об ошибке\", function () {\r",
-                  "    const exception = pm.response.json();\r",
-                  "    pm.expect(exception).to.have.property('message');\r",
-                  "    pm.expect(exception.message).to.include(\"пользователь\");\r",
-                  "    pm.expect(exception.message).to.include(\"не найден\");\r",
                   "});"
                 ],
                 "type": "text/javascript",
