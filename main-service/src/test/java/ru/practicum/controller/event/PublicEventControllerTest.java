@@ -23,8 +23,7 @@ import ru.practicum.service.event.EventService;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,36 +50,36 @@ class PublicEventControllerTest {
         UserShortDto initiator = new UserShortDto(1L, "Иван Иванов");
         Location location = new Location(55.7558f, 37.6173f);
 
-        eventFullDto = new EventFullDto(
-                "Отличный концерт в Москве",
-                category,
-                0L,
-                LocalDateTime.now().minusDays(1),
-                "Подробное описание концерта",
-                LocalDateTime.now().plusDays(7),
-                1L,
-                initiator,
-                location,
-                false,
-                100,
-                LocalDateTime.now(),
-                true,
-                EventState.PUBLISHED,
-                "Концерт в Москве",
-                0L
-        );
+        eventFullDto = EventFullDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(category)
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now().minusDays(1))
+                .description("Подробное описание концерта")
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(initiator)
+                .location(location)
+                .paid(false)
+                .participantLimit(100)
+                .publishedOn(LocalDateTime.now())
+                .requestModeration(true)
+                .state(EventState.PUBLISHED)
+                .title("Концерт в Москве")
+                .views(0L)
+                .build();
 
-        eventShortDto = new EventShortDto(
-                "Отличный концерт в Москве",
-                category,
-                0L,
-                LocalDateTime.now().plusDays(7),
-                1L,
-                initiator,
-                false,
-                "Концерт в Москве",
-                0L
-        );
+        eventShortDto = EventShortDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(category)
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(initiator)
+                .paid(false)
+                .title("Концерт в Москве")
+                .views(0L)
+                .build();
     }
 
     @Test
@@ -162,6 +161,88 @@ class PublicEventControllerTest {
     @DisplayName("Получение события по ID - отрицательный ID")
     void getEventById_NegativeId_ReturnBadRequest() throws Exception {
         mockMvc.perform(get("/events/-1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - успешный сценарий")
+    void getEventWithDistance_withValidCoordinates_ReturnEvent() throws Exception {
+        eventFullDto = EventFullDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now())
+                .description("Подробное описание концерта...")
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .location(new Location(55.7558f, 37.6173f))
+                .paid(false)
+                .participantLimit(100)
+                .publishedOn(null)
+                .requestModeration(true)
+                .state(EventState.PENDING)
+                .title("Концерт в Москве")
+                .views(0L)
+                .distance(100.0)
+                .build();
+
+        when(eventService.getEventWithDistance(anyLong(), anyDouble(), anyDouble())).thenReturn(eventFullDto);
+
+        mockMvc.perform(get("/events/999/distance")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.title").value("Концерт в Москве"))
+                .andExpect(jsonPath("$.distance").value(100));
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - событие не найдено")
+    void getEventWithDistance_EventNotFound_ReturnNotFound() throws Exception {
+        when(eventService.getEventWithDistance(anyLong(), anyDouble(), anyDouble()))
+                .thenThrow(new NotFoundException("Событие с id=999 не найдено"));
+
+        mockMvc.perform(get("/events/999/distance")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - событие не опубликовано")
+    void getEventWithDistance_EventNotPublished_ReturnNotFound() throws Exception {
+        when(eventService.getEventWithDistance(anyLong(), anyDouble(), anyDouble()))
+                .thenThrow(new NotFoundException("Событие не опубликовано"));
+
+        mockMvc.perform(get("/events/1/distance")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - отрицательный ID")
+    void getEventWithDistance_NegativeId_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/events/-1/distance"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - обязательный параметр равен null")
+    void getEventWithDistance_MissingRequiredParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/events/1/distance")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение события по ID c дистанцией - невалидные обязательные параметры")
+    void getEventWithDistance_NotValidationParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/events/1/distance")
+                        .param("lat", "200")
+                        .param("lon", "-300"))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.practicum.EndpointHit;
@@ -19,12 +20,15 @@ import ru.practicum.StatsClient;
 import ru.practicum.ViewStats;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.param_objects.AdminEventsFilter;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.dto.event.param_objects.PublicEventsFilter;
+import ru.practicum.dto.event.projection.EventShortProjection;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.event.EventMapper;
 import ru.practicum.model.*;
+import ru.practicum.model.QEvent;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
@@ -52,6 +56,7 @@ public class EventServiceImpl implements EventService {
         log.debug("JPAQueryFactory успешно инициализирован");
     }
 
+    private static final double EARTH_RADIUS_METERS = 6371000.0;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final LocalDateTime STATS_RANGE_START = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
     private static final String EVENT_URI_PREFIX = "/events/";
@@ -70,7 +75,6 @@ public class EventServiceImpl implements EventService {
             log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
             throw new NotFoundException("Ивент не опубликован");
         }
-
         Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
         log.debug("Ивент успешно получен");
         return eventMapper.toFullDto(event, views);
@@ -88,6 +92,25 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(event -> eventMapper.toShortDto(event, viewsMap))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EventFullDto getEventWithDistance(Long eventId, Double lat, Double lon) {
+        log.info("Получение ивента по id= {}", eventId);
+        Event event = getEventByIdOrThrow(eventId);
+
+        if (!event.getState().equals(EventState.PUBLISHED.name())) {
+            log.warn("Попытка получить неопубликованный ивент с id={}", eventId);
+            throw new NotFoundException("Ивент не опубликован");
+        }
+
+        Long views = getViews(List.of(eventId)).getOrDefault(eventId, 0L);
+        log.debug("Ивент успешно получен");
+
+        Double distance = calculateDistance(lat, lon, event.getLat(), event.getLon());
+        log.debug("Дистанция до ивента вычислена: {} м", distance);
+
+        return eventMapper.toFullDto(event, views).withDistance(distance);
     }
 
     @Override
@@ -137,6 +160,32 @@ public class EventServiceImpl implements EventService {
         log.debug("Views успешно получены");
         log.debug("Описание ивента успешно получено");
         return eventMapper.toFullDto(event, views);
+    }
+
+    @Override
+    public List<EventShortDto> getUserEventsByCoordinates(Long userId, PrivateEventsFilter filter, Integer page,
+                                                          Integer size) {
+        getUserOrThrow(userId);
+        log.info("Получение ближайших событий пользователя userId={} по радиусу radiusMeters= {}м и по координатам:" +
+                " lat= {}, lon= {}", userId, filter.radiusMeters(), filter.lat(), filter.lon());
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<EventShortProjection> eventsNearbyProjection = eventRepository.findEventsWithinRadius(filter.radiusMeters(), filter.lat(),
+                filter.lon(), pageable);
+
+        List<EventShortDto> eventsNearby = eventsNearbyProjection.stream()
+                .map(EventShortDto::fromProjection)
+                .collect(Collectors.toList());
+
+        if (eventsNearby.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Long> viewsMap = getViews(eventsNearby.stream().map(EventShortDto::id).toList());
+        log.debug("События успешно получены");
+
+        return eventsNearby.stream().map(e -> e.withViews(viewsMap.get(e.id())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -404,5 +453,20 @@ public class EventServiceImpl implements EventService {
                     log.warn("Событие с id={} не существует", eventId);
                     return new NotFoundException("Событие с id= " + eventId + " не существует");
                 });
+    }
+
+    private Double calculateDistance(Double latUser, Double lonUser, Double latEvent, Double lonEvent) {
+        double radUser = Math.toRadians(latUser);
+        double radEvent = Math.toRadians(latEvent);
+
+        double radTheta = Math.toRadians(lonUser - lonEvent);
+
+        double distance = Math.sin(radUser) * Math.sin(radEvent) + Math.cos(radUser)
+                * Math.cos(radEvent) * Math.cos(radTheta);
+
+        if (distance > 1) {
+            distance = 1;
+        }
+        return distance = Math.acos(distance) * EARTH_RADIUS_METERS;
     }
 }

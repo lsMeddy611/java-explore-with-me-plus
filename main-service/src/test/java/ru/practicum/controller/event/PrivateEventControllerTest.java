@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.dto.location.Location;
 import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.exception.ConflictException;
@@ -66,36 +67,36 @@ class PrivateEventControllerTest {
         CategoryDto category = new CategoryDto(1L, "Концерты");
         UserShortDto initiator = new UserShortDto(1L, "Иван Иванов");
 
-        eventFullDto = new EventFullDto(
-                "Отличный концерт в Москве",
-                category,
-                0L,
-                LocalDateTime.now(),
-                "Подробное описание концерта с участием известных артистов",
-                LocalDateTime.now().plusDays(7),
-                1L,
-                initiator,
-                location,
-                false,
-                100,
-                null,
-                true,
-                EventState.PENDING,
-                "Концерт в Москве",
-                0L
-        );
+        eventFullDto = EventFullDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(category)
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now())
+                .description("Подробное описание концерта...")
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(initiator)
+                .location(location)
+                .paid(false)
+                .participantLimit(100)
+                .publishedOn(null)
+                .requestModeration(true)
+                .state(EventState.PENDING)
+                .title("Концерт в Москве")
+                .views(0L)
+                .build();
 
-        eventShortDto = new EventShortDto(
-                "Отличный концерт в Москве",
-                category,
-                0L,
-                LocalDateTime.now().plusDays(7),
-                1L,
-                initiator,
-                false,
-                "Концерт в Москве",
-                0L
-        );
+        eventShortDto = EventShortDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(category)
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(initiator)
+                .paid(false)
+                .title("Концерт в Москве")
+                .views(0L)
+                .build();
     }
 
     @Test
@@ -204,6 +205,79 @@ class PrivateEventControllerTest {
     }
 
     @Test
+    @DisplayName("Получение подборки событий поблизости - успешный сценарий")
+    void getUserEventsByCoordinates_withValidCoordinates_ReturnCollectionEvent() throws Exception {
+        eventShortDto = EventShortDto.builder()
+                .annotation("Отличный концерт в Москве")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .eventDate(LocalDateTime.now().plusDays(7))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .paid(false)
+                .title("Концерт в Москве")
+                .views(0L)
+                .distance(200.0)
+                .build();
+
+        List<EventShortDto> events = List.of(eventShortDto);
+
+        when(eventService.getUserEventsByCoordinates(anyLong(), any(PrivateEventsFilter.class), anyInt(), anyInt()))
+                .thenReturn(events);
+
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("Концерт в Москве"))
+                .andExpect(jsonPath("$[0].distance").value(200));
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - пользователь не найден")
+    void getUserEventsByCoordinates_UserNotFound_ReturnNotFound() throws Exception {
+        when(eventService.getUserEventsByCoordinates(anyLong(), any(PrivateEventsFilter.class), anyInt(), anyInt()))
+                .thenThrow(new NotFoundException("Пользователь с id= 999 не найден"));
+
+        mockMvc.perform(get("/users/999/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - отрицательный ID")
+    void getEventWithDistance_NegativeId_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/-1/events/nearby")
+                        .param("radiusMeters", "500")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - обязательный параметр равен null")
+    void getUserEventsByCoordinates_MissingRequiredParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("lat", "55.7558")
+                        .param("lon", "37.6173"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Получение подборки событий - невалидные обязательные параметры")
+    void getUserEventsByCoordinates_NotValidationParams_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/users/1/events/nearby")
+                        .param("radiusMeters", "-100")
+                        .param("lat", "200")
+                        .param("lon", "-300"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("Обновление события пользователем - успешный сценарий")
     void updateUserEvent_ValidData_ReturnUpdatedEvent() throws Exception {
         UpdateEventUserRequest updateRequest = new UpdateEventUserRequest(
@@ -219,24 +293,24 @@ class PrivateEventControllerTest {
                 "Обновленный концерт"
         );
 
-        EventFullDto updatedEvent = new EventFullDto(
-                "Обновленная аннотация",
-                new CategoryDto(1L, "Концерты"),
-                0L,
-                LocalDateTime.now(),
-                "Обновленное описание",
-                LocalDateTime.now().plusDays(10),
-                1L,
-                new UserShortDto(1L, "Иван Иванов"),
-                new Location(55.7558f, 37.6173f),
-                true,
-                200,
-                null,
-                false,
-                EventState.PENDING,
-                "Обновленный концерт",
-                0L
-        );
+        EventFullDto updatedEvent = EventFullDto.builder()
+                .annotation("Обновленная аннотация")
+                .category(new CategoryDto(1L, "Концерты"))
+                .confirmedRequests(0L)
+                .createdOn(LocalDateTime.now())
+                .description("Обновленное описание")
+                .eventDate(LocalDateTime.now().plusDays(10))
+                .id(1L)
+                .initiator(new UserShortDto(1L, "Иван Иванов"))
+                .location(new Location(55.7558f, 37.6173f))
+                .paid(true)
+                .participantLimit(200)
+                .publishedOn(null)
+                .requestModeration(false)
+                .state(EventState.PENDING)
+                .title("Обновленный концерт")
+                .views(0L)
+                .build();
 
         when(eventService.updateUserEvent(anyLong(), anyLong(), any(UpdateEventUserRequest.class)))
                 .thenReturn(updatedEvent);

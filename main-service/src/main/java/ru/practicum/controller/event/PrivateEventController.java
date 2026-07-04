@@ -13,6 +13,7 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.event.param_objects.PrivateEventsFilter;
 import ru.practicum.service.event.EventService;
 
 import java.util.List;
@@ -44,9 +45,17 @@ public class PrivateEventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getUserEvent(@PathVariable Long userId, @PathVariable Long eventId) {
-        log.info("GET /users/{}/events/{}", userId, eventId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(eventService.getUserEvent(userId, eventId));
+    }
+
+    @GetMapping("/nearby")
+    public ResponseEntity<List<EventShortDto>> getUserEventsByCoordinates(@PathVariable @Positive Long userId,
+                                                                          @ModelAttribute @Valid PrivateEventsFilter filter,
+                                                                          @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                                                          @RequestParam(defaultValue = "10") @Positive int size) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(eventService.getUserEventsByCoordinates(userId, filter, page, size));
     }
 
     @PatchMapping("/{eventId}")
